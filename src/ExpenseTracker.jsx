@@ -3925,8 +3925,19 @@ function NotesTab({ noteTabs, onSaveTabs, goals, onSaveGoals, noteFont, noteSize
           className="inline-flex mx-auto mb-3 active:scale-90 transition">
           <img src={LOGO_SUN} alt="logo" style={{ width: 60, height: 60, objectFit: 'contain' }} />
         </button>
-        <div className="mx-auto" style={{ fontSize: 11, lineHeight: '17px', maxWidth: 300, textWrap: 'balance', color: '#3A3A3A' }}>
-          This webapp was made by the amazing Charlotte Kuek! If you have issues or ideas to make it better, feel free to text me @charlottekuek on tele, ig, linkedin, or just deal with it I guess... HAHAHA ENJOYY!
+        <div className="mx-auto" style={{ fontSize: 11, lineHeight: '17px', maxWidth: 300, textWrap: 'pretty', color: '#3A3A3A' }}>
+          This webapp was made by the amazing Charlotte Kuek! If you have issues or ideas to make it better, feel free to text me @charlottekuek on tele, ig, linkedin, or just deal with it I guess...&nbsp;HAHAHA&nbsp;ENJOYY!
+        </div>
+        <div className="flex items-center justify-center gap-4 mt-3">
+          <a href="https://www.linkedin.com/in/charlottekuek/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="active:scale-90 transition">
+            <img src={IC_LINKEDIN} alt="LinkedIn" style={{ width: 34, height: 34, objectFit: 'contain' }} />
+          </a>
+          <a href="https://t.me/charlottekuek" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="active:scale-90 transition">
+            <img src={IC_TELEGRAM} alt="Telegram" style={{ width: 34, height: 34, objectFit: 'contain' }} />
+          </a>
+          <a href="https://www.instagram.com/charlottekuek/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="active:scale-90 transition">
+            <img src={IC_INSTAGRAM} alt="Instagram" style={{ width: 34, height: 34, objectFit: 'contain' }} />
+          </a>
         </div>
       </div>
 
