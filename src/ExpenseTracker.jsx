@@ -105,6 +105,7 @@ const QUOTES = [{"q": "The purpose of wealth is freedom.", "who": "Naval Ravikan
 
 const DEFAULT_CATEGORIES = [
   { id: 'food', name: 'Food', color: '#F59E0B', subs: [] },
+  { id: 'restaurants', name: 'Restaurants', color: '#EA580C', subs: [] },
   { id: 'transport', name: 'Transport', color: '#3B82F6', subs: [
       { id: 'tp_ride', name: 'Ride-hailing' },
       { id: 'tp_public', name: 'Public transport' },
@@ -155,20 +156,22 @@ const EMOJI_CURRENCY = {
   '🇪🇺': 'EUR', '🇦🇺': 'AUD',
 };
 
+const LOGO_SUN2 = 'data:image/png;base64,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';
+
 const KEYWORDS = [
-  [['grab', 'gojek', 'taxi', 'uber', 'cab', 'tada', 'comfort'], 'transport', 'tp_ride'],
-  [['mrt', 'bus', 'ezlink', 'ez-link', 'train', 'transit', 'metro', 'subway'], 'transport', 'tp_public'],
-  [['flight', 'flights', 'airfare', 'airline', 'scoot', 'jetstar', 'sia', 'airasia', 'boarding'], 'transport', 'tp_flight'],
-  [['hotel', 'hostel', 'airbnb', 'motel', 'lodge', 'accommodation', 'stay'], 'accommodation', null],
-  [['ntuc', 'fairprice', 'supermarket', 'cold storage', 'giant', 'sheng siong', 'grocer', 'groceries'], 'groceries', null],
-  [['netflix', 'spotify', 'icloud', 'youtube premium', 'subscription', 'disney', 'chatgpt', 'notion'], 'subscriptions', null],
-  [['restaurant', 'cafe', 'café', 'starbucks', 'dinner', 'brunch', 'bar ', 'izakaya'], 'food', null],
-  [['lunch', 'breakfast', 'hawker', 'kopitiam', 'food', 'eat', 'mcdonald', 'kfc', 'coffee', 'snack', 'bubble tea', 'kopi'], 'food', null],
-  [['movie', 'cinema', 'concert', 'game', 'arcade', 'karaoke', 'ktv', 'gig'], 'entertainment', null],
-  [['shopee', 'lazada', 'uniqlo', 'clothes', 'shirt', 'shoes', 'shopping', 'zara', 'cotton on'], 'shopping', null],
-  [['school', 'textbook', 'course', 'tuition', 'exam', 'module', 'printing'], 'education', 'edu_books'],
-  [['pharmacy', 'clinic', 'doctor', 'medicine', 'guardian', 'watsons', 'dental', 'gym'], 'health', null],
-  [['gift', 'present', 'donation', 'birthday'], 'gifts', null],
+  [['grab', 'gojek', 'taxi', 'uber', 'cab', 'tada', 'comfort', 'ryde', 'zig', 'grabcar'], 'transport', 'tp_ride'],
+  [['mrt', 'bus', 'ezlink', 'ez-link', 'ez link', 'simplygo', 'myrapid', 'rapid', 'transitlink', 'train', 'transit', 'metro', 'subway', 'octopus', 'suica', 'top up card', 'card top'], 'transport', 'tp_public'],
+  [['flight', 'flights', 'airfare', 'airline', 'airlines', 'singapore airlines', 'sia', 'scoot', 'jetstar', 'airasia', 'cathay', 'emirates', 'qantas', 'batik', 'cebu pacific', 'ana', 'jal', 'boarding'], 'transport', 'tp_flight'],
+  [['hotel', 'hostel', 'airbnb', 'motel', 'lodge', 'resort', 'accommodation', 'booking.com', 'agoda', 'expedia'], 'accommodation', null],
+  [['ntuc', 'fairprice', 'supermarket', 'cold storage', 'giant', 'sheng siong', 'sheng shiong', 'prime market', 'donki', 'don don donki', 'grocer', 'groceries', 'market'], 'groceries', null],
+  [['netflix', 'spotify', 'icloud', 'apple.com', 'itunes', 'app store', 'appstore', 'apple', 'google', 'youtube premium', 'youtube', 'subscription', 'disney', 'hbo', 'chatgpt', 'openai', 'anthropic', 'claude', 'notion', 'adobe', 'canva', 'patreon', 'dropbox'], 'subscriptions', null],
+  [['restaurant', 'cafe', 'café', 'bistro', 'eatery', 'diner', 'starbucks', 'coffee bean', 'toast box', 'mcdonald', 'mcdonalds', 'kfc', 'burger king', 'subway', 'jollibee', 'texas chicken', 'shake shack', 'pizza', 'dominos', 'pizza hut', 'sushi', 'ramen', 'izakaya', 'saizeriya', 'dinner', 'brunch', 'buffet', 'bar ', 'pub', 'bakery', 'dessert', 'ya kun', 'paradise', 'din tai fung'], 'restaurants', null],
+  [['hawker', 'kopitiam', 'food court', 'foodcourt', 'coffee shop', 'coffeeshop', 'kopi', 'canteen', 'cai fan', 'economic rice', 'mixed rice', 'lunch', 'breakfast', 'food', 'eat', 'snack', 'bubble tea', 'toast', 'prata', 'chicken rice'], 'food', null],
+  [['movie', 'cinema', 'concert', 'game', 'arcade', 'karaoke', 'ktv', 'gig', 'steam', 'playstation', 'nintendo', 'bowling'], 'entertainment', null],
+  [['shopee', 'lazada', 'amazon', 'qoo10', 'taobao', 'uniqlo', 'clothes', 'shirt', 'shoes', 'shopping', 'zara', 'h&m', 'cotton on', 'decathlon', 'ikea', 'daiso', 'mothercare', 'toys r us', 'popular', 'challenger', 'courts', 'sephora'], 'shopping', null],
+  [['school', 'textbook', 'course', 'tuition', 'exam', 'module', 'printing', 'udemy', 'coursera'], 'education', 'edu_books'],
+  [['pharmacy', 'clinic', 'doctor', 'medicine', 'guardian', 'watsons', 'unity', 'dental', 'hospital', 'polyclinic', 'gym', 'fitness'], 'health', null],
+  [['gift', 'present', 'donation', 'birthday', 'charity'], 'gifts', null],
 ];
 
 /* ----------------------------- helpers ----------------------------- */
@@ -402,7 +405,7 @@ function suggestCategory(desc) {
 
 /* ----------------------------- storage ----------------------------- */
 
-const DATA_VERSION = 13;
+const DATA_VERSION = 14;
 
 // One-time, in-place upgrades for data saved by older versions.
 function migrate(d) {
@@ -485,6 +488,15 @@ function migrate(d) {
       d.appearance.font = d.appearance.font === 'serif' ? 'lora' : 'system';
     }
     v = 13;
+  }
+  if (v < 14) {
+    // Add the new default "Restaurants" category for existing users (once).
+    if (Array.isArray(d.categories) && !d.categories.some((c) => c.id === 'restaurants' || (c.name || '').toLowerCase() === 'restaurants')) {
+      const rest = { id: 'restaurants', name: 'Restaurants', color: '#EA580C', subs: [] };
+      const idx = d.categories.findIndex((c) => c.id === 'food');
+      if (idx >= 0) d.categories.splice(idx + 1, 0, rest); else d.categories.push(rest);
+    }
+    v = 14;
   }
   d.v = v;
   return d;
@@ -622,6 +634,10 @@ export default function ExpenseTracker({ onSignOut }) {
     update({ expenses: data.expenses.map((x) => (x.id === e.id ? e : x)) });
   const removeExpense = (id) =>
     update({ expenses: data.expenses.filter((x) => x.id !== id) });
+  const removeExpenses = (ids) => {
+    const set = new Set(ids);
+    update({ expenses: data.expenses.filter((x) => !set.has(x.id)) });
+  };
 
   if (!loaded || !data) {
     return (
@@ -669,17 +685,12 @@ export default function ExpenseTracker({ onSignOut }) {
         <div className="fixed inset-0 flex items-center justify-center p-5" style={{ zIndex: 60, background: 'rgba(0,0,0,0.55)' }}>
           <div className="bg-white rounded-3xl w-full max-w-sm overflow-y-auto noscroll" style={{ maxHeight: '88vh', boxShadow: '0 12px 40px rgba(0,0,0,0.25)' }}>
             <div className="px-5 pt-5 pb-2 text-white" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT}cc)` }}>
-              <div className="text-lg font-bold leading-snug">HOWDY DEAR FRIEND — just a lil quick heads up before you start 💛</div>
+              <div className="text-lg font-bold leading-snug">HOWDY DEAR FRIEND 💛</div>
               <div className="text-sm font-semibold mt-1 opacity-95">Charlotte here!</div>
             </div>
-            <div className="px-5 py-4 space-y-3 text-sm text-gray-600" style={{ lineHeight: 1.55 }}>
-              <p>However you got to this link, I built this little webapp for fun and I'm still tinkering with it, so it's not bulletproof. By using it, you're agreeing that:</p>
-              <ul className="space-y-2 pl-1">
-                <li className="flex gap-2"><span style={{ color: ACCENT }}>•</span><span>Your data lives only on your device. If it gets lost, the app breaks, or something goes weird down the line… that's the risk of using a homemade thing.</span></li>
-                <li className="flex gap-2"><span style={{ color: ACCENT }}>•</span><span>I can't promise to fix, recover, or rescue anything you lose.</span></li>
-                <li className="flex gap-2"><span style={{ color: ACCENT }}>•</span><span>If you're afraid of losing anything, you can back up your stuff now and then (Settings → Download backup).</span></li>
-              </ul>
-              <p>Use at your own risk, but otherwise — enjoy!! Made with love (and zero warranties LEL)</p>
+            <div className="px-5 py-4 space-y-2.5 text-sm text-gray-600" style={{ lineHeight: 1.55 }}>
+              <p>I built this lil webapp for fun, so it's not bulletproof! Your data saves to your own cloud account — but things can still break or go weird, and I can't promise to rescue anything you lose. So back up now &amp; then (Settings → Download backup).</p>
+              <p>Use at your own risk &amp; enjoy!! 💛 <span className="text-gray-400">(made with love, zero warranties LOL)</span></p>
             </div>
             <div className="px-5 pb-5">
               <button onClick={() => update({ disclaimerAck: true })}
@@ -710,7 +721,7 @@ export default function ExpenseTracker({ onSignOut }) {
             <TripsTab data={data} cats={cats} catById={catById} rates={rates} update={update} setTab={setTab} />
           )}
           {tab === 'history' && (
-            <HistoryTab data={data} cats={cats} catById={catById} onEdit={setEditing} onDelete={removeExpense} />
+            <HistoryTab data={data} cats={cats} catById={catById} onEdit={setEditing} onDelete={removeExpense} onDeleteMany={removeExpenses} />
           )}
           {tab === 'notes' && (
             <NotesTab noteTabs={data.noteTabs} onSaveTabs={(t) => update({ noteTabs: t })}
@@ -1363,12 +1374,14 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   );
 }
 
-function ExpenseRow({ e, cat, onClick, amount, note }) {
+function ExpenseRow({ e, cat, onClick, amount, note, lead, selected }) {
   const sub = cat?.subs.find((s) => s.id === e.subId);
   const shown = amount != null ? amount : e.sgd;
   const split = (e.spreadDays || 1) > 1;
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-gray-50">
+    <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-gray-50"
+      style={selected ? { background: ACCENT + '12' } : undefined}>
+      {lead}
       <Dot color={cat?.color || '#94A3B8'} />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium truncate">
@@ -1549,7 +1562,7 @@ function InsightsTab({ data, cats, catById, activeTrip, onEdit }) {
             <div className="text-xs text-gray-400 font-medium mb-1">Where it went</div>
             <DonutChart data={byCat} total={total} caption="Total"
               onSlice={(id) => setDetailCatId(id)} />
-            <div className="text-center text-xs text-gray-400 mt-1">Tap a slice or row to see every expense</div>
+            <div className="text-center text-xs text-gray-400 mt-1">Tap a slice to see its amount · tap a category below for every expense</div>
           </Card>
 
           <Card className="divide-y divide-gray-50">
@@ -1817,14 +1830,22 @@ function pctLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
 
 function DonutChart({ data, total, caption, onSlice }) {
   const wrapRef = useRef(null);
-  const [hover, setHover] = useState(null);
+  const [hover, setHover] = useState(null); // desktop hover
+  const [sel, setSel] = useState(null);     // tapped slice (works on mobile)
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const onMove = (e) => {
     const r = wrapRef.current && wrapRef.current.getBoundingClientRect();
     if (r) setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
   };
   const active = hover != null ? data[hover] : null;
-  const flipX = pos.x > 200; // keep the tooltip on screen near the right edge
+  const shown = sel != null ? data[sel] : null;
+  const flipX = pos.x > 200;
+  const tapSlice = (idx) => {
+    if (sel === idx) {
+      if (onSlice) onSlice(data[idx].id); // second tap on the same slice opens it
+      else setSel(null);
+    } else setSel(idx);
+  };
   return (
     <div ref={wrapRef} className="relative" style={{ height: 220 }} onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
       <ResponsiveContainer width="100%" height="100%">
@@ -1833,17 +1854,35 @@ function DonutChart({ data, total, caption, onSlice }) {
             innerRadius={64} outerRadius={94} paddingAngle={2} stroke="none"
             label={pctLabel} labelLine={false} isAnimationActive={false}
             onMouseEnter={(_, idx) => setHover(idx)}
-            onClick={onSlice ? (_, idx) => onSlice(data[idx].id) : undefined}
-            style={{ cursor: onSlice ? 'pointer' : 'default', outline: 'none' }}>
-            {data.map((d) => <Cell key={d.id} fill={d.color} style={{ outline: 'none' }} />)}
+            onClick={(_, idx) => tapSlice(idx)}
+            style={{ cursor: 'pointer', outline: 'none' }}>
+            {data.map((d, i) => (
+              <Cell key={d.id} fill={d.color}
+                style={{ outline: 'none', opacity: sel == null || sel === i ? 1 : 0.4, transition: 'opacity 0.15s' }} />
+            ))}
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div className="text-gray-400" style={{ fontSize: 11 }}>{caption}</div>
-        <div className="font-semibold tnum" style={{ fontSize: 20, color: 'var(--ink)' }}>{fmtSGD(total)}</div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ pointerEvents: 'none' }}>
+        {shown ? (
+          <div onClick={() => setSel(null)} style={{ pointerEvents: 'auto', cursor: 'pointer', textAlign: 'center', padding: '0 10px' }}>
+            <div className="flex items-center justify-center gap-1.5">
+              <span style={{ width: 8, height: 8, borderRadius: 8, background: shown.color, flexShrink: 0 }} />
+              <span className="truncate" style={{ fontSize: 12, color: '#6B7280', maxWidth: 118 }}>{shown.name}</span>
+            </div>
+            <div className="font-semibold tnum" style={{ fontSize: 19, color: shown.color, marginTop: 1 }}>{fmtSGD(shown.value)}</div>
+            <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>
+              {Math.round((shown.value / total) * 100)}%{onSlice ? ' · tap again to open' : ''}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-gray-400" style={{ fontSize: 11 }}>{caption}</div>
+            <div className="font-semibold tnum" style={{ fontSize: 20, color: 'var(--ink)' }}>{fmtSGD(total)}</div>
+          </>
+        )}
       </div>
-      {active && (
+      {active && !shown && (
         <div className="pointer-events-none" style={{
           position: 'absolute', left: pos.x, top: pos.y, zIndex: 60,
           transform: `translate(${flipX ? 'calc(-100% - 12px)' : '12px'}, 12px)`,
@@ -2493,25 +2532,63 @@ function TripsTab({ data, cats, catById, rates, update, setTab }) {
 
 function SwipeRow({ children, onDelete }) {
   const [dx, setDx] = useState(0);
+  const [removing, setRemoving] = useState(false);
+  const rowRef = useRef(null);
   const startX = useRef(0);
+  const startY = useRef(0);
+  const dir = useRef(null);     // 'h' | 'v' | null  (lock after first move)
+  const moved = useRef(false);  // did a real horizontal drag happen?
   const dragging = useRef(false);
-  const onStart = (e) => { dragging.current = true; startX.current = e.touches[0].clientX; };
-  const onMove = (e) => {
+  const widthRef = useRef(320);
+  const thresh = () => Math.min(170, widthRef.current * 0.5); // swipe past here = delete
+
+  const down = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    dragging.current = true; moved.current = false; dir.current = null;
+    startX.current = e.clientX; startY.current = e.clientY;
+    if (rowRef.current) widthRef.current = rowRef.current.offsetWidth || 320;
+  };
+  const move = (e) => {
     if (!dragging.current) return;
-    let d = e.touches[0].clientX - startX.current;
-    if (d > 0) d = 0; if (d < -88) d = -88;
+    const ddx = e.clientX - startX.current;
+    const ddy = e.clientY - startY.current;
+    if (!dir.current) {
+      if (Math.abs(ddx) < 6 && Math.abs(ddy) < 6) return;
+      dir.current = Math.abs(ddx) > Math.abs(ddy) ? 'h' : 'v';
+      if (dir.current === 'h') { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
+    }
+    if (dir.current !== 'h') return; // vertical → let the page scroll
+    moved.current = true;
+    let d = ddx; if (d > 0) d = 0;
     setDx(d);
   };
-  const onEnd = () => { dragging.current = false; setDx(dx < -44 ? -80 : 0); };
+  const finish = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    if (dir.current === 'h' && -dx >= thresh()) {
+      setRemoving(true);
+      setDx(-(widthRef.current + 40));
+      setTimeout(onDelete, 200);
+    } else {
+      setDx(0);
+    }
+    dir.current = null;
+    setTimeout(() => { moved.current = false; }, 30);
+  };
+
+  const past = -dx >= thresh();
   return (
-    <div className="relative overflow-hidden">
-      <button onClick={onDelete}
-        className="absolute right-0 top-0 bottom-0 flex items-center justify-center text-white"
-        style={{ width: 80, background: '#DC2626' }}>
-        <Trash2 size={18} />
-      </button>
-      <div className="bg-white" onTouchStart={onStart} onTouchMove={onMove} onTouchEnd={onEnd}
-        style={{ transform: `translateX(${dx}px)`, transition: dragging.current ? 'none' : 'transform 0.2s' }}>
+    <div ref={rowRef} className="relative overflow-hidden"
+      style={{ maxHeight: removing ? 0 : 500, opacity: removing ? 0.3 : 1, transition: removing ? 'max-height 0.2s ease, opacity 0.2s ease' : 'none' }}>
+      <div className="absolute inset-0 flex items-center justify-end pr-5"
+        style={{ background: past ? '#DC2626' : '#FCA5A5', transition: 'background 0.12s' }}>
+        {past && <span className="text-white font-semibold mr-2" style={{ fontSize: 12 }}>release to delete</span>}
+        <Trash2 size={past ? 22 : 18} color="#fff" style={{ transition: 'all 0.12s' }} />
+      </div>
+      <div className="bg-white"
+        onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish}
+        onClickCapture={(ev) => { if (moved.current) { ev.preventDefault(); ev.stopPropagation(); } }}
+        style={{ transform: `translateX(${dx}px)`, transition: dragging.current ? 'none' : 'transform 0.2s', touchAction: 'pan-y' }}>
         {children}
       </div>
     </div>
@@ -2685,7 +2762,7 @@ function MonthlyWrap({ data, cats, catById, onBack, onEdit }) {
   );
 }
 
-function HistoryTab({ data, cats, catById, onEdit, onDelete }) {
+function HistoryTab({ data, cats, catById, onEdit, onDelete, onDeleteMany }) {
   const [q, setQ] = useState('');
   const [selCats, setSelCats] = useState([]); // empty = all
   const [showFilters, setShowFilters] = useState(false);
@@ -2693,9 +2770,44 @@ function HistoryTab({ data, cats, catById, onEdit, onDelete }) {
   const [to, setTo] = useState('');
   const [showUpcoming, setShowUpcoming] = useState(false);
   const [showWrap, setShowWrap] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [sel, setSel] = useState([]); // selected expense ids
+  const paintVal = useRef(null);
+  const painting = useRef(false);
   const today = todayISO();
 
   if (showWrap) return <MonthlyWrap data={data} cats={cats} catById={catById} onEdit={onEdit} onBack={() => setShowWrap(false)} />;
+
+  const inSel = (id) => sel.includes(id);
+  const setOne = (id, val) => setSel((s) => {
+    const has = s.includes(id);
+    if (val && !has) return [...s, id];
+    if (!val && has) return s.filter((x) => x !== id);
+    return s;
+  });
+  const toggleOne = (id) => setOne(id, !inSel(id));
+  const exitSelect = () => { setSelectMode(false); setSel([]); };
+
+  // drag-to-paint selection — only starts when the press begins on a checkbox
+  const onRowsDown = (e) => {
+    if (!selectMode) return;
+    const cb = e.target.closest && e.target.closest('[data-cb]');
+    const row = e.target.closest && e.target.closest('[data-exp-id]');
+    if (!cb || !row) return;
+    const id = row.getAttribute('data-exp-id');
+    const val = !inSel(id);
+    paintVal.current = val; painting.current = true;
+    setOne(id, val);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  };
+  const onRowsMove = (e) => {
+    if (!painting.current) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const row = el && el.closest && el.closest('[data-exp-id]');
+    if (row) setOne(row.getAttribute('data-exp-id'), paintVal.current);
+  };
+  const onRowsUp = () => { painting.current = false; };
 
   const toggleCat = (id) =>
     setSelCats((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -2746,6 +2858,13 @@ function HistoryTab({ data, cats, catById, onEdit, onDelete }) {
             ? { background: ACCENT, borderColor: ACCENT, color: '#fff' }
             : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
           Filters{filtersOn ? ' •' : ''}
+        </button>
+        <button onClick={() => (selectMode ? exitSelect() : setSelectMode(true))}
+          className="px-3 py-2 rounded-xl border text-sm font-medium"
+          style={selectMode
+            ? { background: ACCENT, borderColor: ACCENT, color: '#fff' }
+            : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
+          {selectMode ? 'Done' : 'Select'}
         </button>
       </div>
 
@@ -2819,7 +2938,7 @@ function HistoryTab({ data, cats, catById, onEdit, onDelete }) {
           {filtersOn || q ? 'Nothing matches your search or filters.' : 'No expenses logged yet.'}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4" onPointerDown={onRowsDown} onPointerMove={onRowsMove} onPointerUp={onRowsUp} onPointerCancel={onRowsUp}>
           {dates.map((d) => {
             const dayTotal = groups[d].reduce((s, e) => s + e.sgd, 0);
             return (
@@ -2830,15 +2949,51 @@ function HistoryTab({ data, cats, catById, onEdit, onDelete }) {
                 </div>
                 <Card className="divide-y divide-gray-50 overflow-hidden">
                   {groups[d].map((e) => (
-                    <SwipeRow key={e.id} onDelete={() => onDelete(e.id)}>
-                      <ExpenseRow e={e} cat={catById[e.catId]} onClick={() => onEdit(e)} />
-                    </SwipeRow>
+                    selectMode ? (
+                      <div key={e.id} data-exp-id={e.id} style={{ touchAction: 'pan-y' }}>
+                        <ExpenseRow e={e} cat={catById[e.catId]} selected={inSel(e.id)} onClick={() => toggleOne(e.id)}
+                          lead={
+                            <span data-cb className="shrink-0 flex items-center justify-center" style={{ width: 22, height: 22 }}>
+                              <span style={{ width: 21, height: 21, borderRadius: 21, border: '2px solid',
+                                borderColor: inSel(e.id) ? ACCENT : '#D1D5DB', background: inSel(e.id) ? ACCENT : 'transparent',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.1s' }}>
+                                {inSel(e.id) && <Check size={13} color="#fff" />}
+                              </span>
+                            </span>
+                          } />
+                      </div>
+                    ) : (
+                      <SwipeRow key={e.id} onDelete={() => onDelete(e.id)}>
+                        <ExpenseRow e={e} cat={catById[e.catId]} onClick={() => onEdit(e)} />
+                      </SwipeRow>
+                    )
                   ))}
                 </Card>
               </div>
             );
           })}
-          <div className="text-center text-gray-300" style={{ fontSize: 11 }}>Swipe a row left to delete</div>
+          {!selectMode && (
+            <div className="text-center text-gray-300" style={{ fontSize: 11 }}>Swipe a row left to delete · or tap “Select” for many</div>
+          )}
+          {selectMode && <div style={{ height: 72 }} />}
+        </div>
+      )}
+
+      {selectMode && (
+        <div className="fixed left-0 right-0 bottom-0 px-4 pb-5 pt-3" style={{ zIndex: 50, background: 'linear-gradient(to top, rgba(0,0,0,0.06), transparent)' }}>
+          <div className="max-w-md mx-auto flex items-center gap-2 px-3 py-2.5 rounded-2xl bg-white border border-gray-100" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.16)' }}>
+            <button onClick={() => { const ids = past.map((e) => e.id); setSel(sel.length === ids.length ? [] : ids); }}
+              className="text-sm font-medium px-2 py-1.5 rounded-lg active:bg-gray-50" style={{ color: ACCENT }}>
+              {sel.length === past.length && past.length > 0 ? 'Clear' : 'All'}
+            </button>
+            <div className="flex-1 text-center text-sm font-medium text-gray-500">{sel.length} selected</div>
+            <button disabled={sel.length === 0}
+              onClick={() => { onDeleteMany(sel); exitSelect(); }}
+              className="flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-xl active:scale-95 transition"
+              style={sel.length === 0 ? { background: '#F3F4F6', color: '#9CA3AF' } : { background: '#DC2626', color: '#fff' }}>
+              <Trash2 size={15} /> Delete
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -3062,6 +3217,147 @@ function SettingsTab({ data, update, setData, onSignOut }) {
       <p className="text-xs text-gray-400 text-center pt-4 px-6">
         Totals are shown in {data.baseCurrency || 'SGD'}. Your expenses sync privately to your account — only you can see them. Export a backup now and then for extra peace of mind.
       </p>
+
+      <DangerZone data={data} update={update} />
+
+      <TechStackEgg />
+    </div>
+  );
+}
+
+function TechStackEgg() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="pt-8 pb-6 flex flex-col items-center">
+      <button onClick={() => setOpen((v) => !v)} className="active:scale-90 transition" aria-label="About this app">
+        <img src={LOGO_SUN2} alt="kuekadoodledoo" style={{ width: 64, height: 64, objectFit: 'contain', opacity: 0.9 }} />
+      </button>
+      {open && (
+        <div className="mt-4 rounded-2xl p-4 max-w-xs text-sm leading-relaxed" style={{ background: ACCENT + '0D', border: '1px solid ' + ACCENT + '22', color: 'var(--ink)' }}>
+          <div className="font-semibold mb-1.5" style={{ color: ACCENT }}>psst — how this lil app works 🌻</div>
+          <p className="mb-2">
+            Kuekadoodledoo is a little web app built with <strong>React</strong> + <strong>Vite</strong>, styled with <strong>Tailwind</strong>,
+            with charts by <strong>Recharts</strong>. It lives on the internet thanks to <strong>Vercel</strong>, which hosts the site for free.
+          </p>
+          <p className="mb-2">
+            Your data is saved in <strong>Supabase</strong> — a database (Postgres) that runs on <strong>Amazon's servers (AWS)</strong>,
+            in whatever region was picked when the app was set up (mine's in <strong>Singapore</strong> 🇸🇬). Because of the privacy rules
+            we set up, <strong>only your own login can ever see your rows</strong> — not other users, not me, not randoms.
+          </p>
+          <p className="mb-2">
+            The category-guessing (turning “mcdonalds 10” into Restaurants) is done with simple word-matching <em>on your phone</em> —
+            <strong> no AI, no tracking, no ads</strong>, and nothing gets sent anywhere except your own private data.
+          </p>
+          <p className="text-gray-400" style={{ fontSize: 12 }}>Tip: add it to your Home Screen (Share → Add to Home Screen) and it feels like a real app 💛</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DangerZone({ data, update }) {
+  const [open, setOpen] = useState(false);
+  const [modal, setModal] = useState(false);
+  const blank = { expenses: false, trips: false, recurring: false, notes: false, goals: false, categories: false };
+  const [parts, setParts] = useState(blank);
+  const [confirmText, setConfirmText] = useState('');
+
+  const OPTIONS = [
+    ['expenses', 'All expenses', `${data.expenses.length} logged`],
+    ['trips', 'All trips', `${(data.trips || []).length} trips`],
+    ['recurring', 'Recurring rules', `${(data.recurring || []).length} rules`],
+    ['notes', 'Notebook notes', 'clears your note tabs'],
+    ['goals', 'Financial Vision answers', 'clears your goals'],
+    ['categories', 'Reset categories', 'back to the defaults'],
+  ];
+  const anyPicked = Object.values(parts).some(Boolean);
+  const armed = anyPicked && confirmText.trim().toUpperCase() === 'DELETE';
+
+  const backup = () => {
+    try {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'kuekadoodledoo-backup.json'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) { /* ignore */ }
+  };
+
+  const doErase = () => {
+    if (!armed) return;
+    const patch = {};
+    if (parts.expenses) patch.expenses = [];
+    if (parts.trips) { patch.trips = []; patch.activeTripId = null; }
+    if (parts.recurring) patch.recurring = [];
+    if (parts.notes) patch.noteTabs = [{ id: uid(), title: 'Notes', html: '' }];
+    if (parts.goals) patch.goals = { ...DEFAULT_GOALS };
+    if (parts.categories) patch.categories = DEFAULT_CATEGORIES;
+    update(patch);
+    setModal(false); setParts(blank); setConfirmText('');
+  };
+
+  const close = () => { setModal(false); setConfirmText(''); };
+
+  return (
+    <div className="pt-6">
+      <button onClick={() => setOpen((o) => !o)} className="w-full text-center text-xs text-gray-300 py-2">
+        {open ? 'Hide advanced' : 'Advanced'}
+      </button>
+      {open && (
+        <div className="mt-1 rounded-2xl border p-4" style={{ borderColor: '#FCA5A5' }}>
+          <div className="text-xs font-semibold" style={{ color: '#DC2626' }}>Danger zone</div>
+          <p className="text-xs text-gray-400 mt-1">Permanently erase data from your account. This can't be undone.</p>
+          <button onClick={() => setModal(true)}
+            className="mt-3 w-full py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition"
+            style={{ background: '#fff', border: '1px solid #DC2626', color: '#DC2626' }}>
+            Erase data…
+          </button>
+        </div>
+      )}
+
+      {modal && (
+        <div className="fixed inset-0 flex items-center justify-center p-5" style={{ zIndex: 70, background: 'rgba(0,0,0,0.55)' }}>
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-y-auto noscroll" style={{ maxHeight: '90vh' }}>
+            <div className="px-5 pt-5">
+              <div className="text-lg font-bold" style={{ color: '#DC2626' }}>Erase data</div>
+              <p className="text-sm text-gray-500 mt-1">Choose what to wipe. Anything you don't tick stays safe.</p>
+            </div>
+            <div className="px-5 py-3 space-y-1.5">
+              {OPTIONS.map(([key, label, desc]) => (
+                <button key={key} onClick={() => setParts((p) => ({ ...p, [key]: !p[key] }))}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left active:bg-gray-50 border"
+                  style={{ borderColor: parts[key] ? '#DC2626' : '#F0F0F0', background: parts[key] ? '#FEF2F2' : '#fff' }}>
+                  <span style={{ width: 20, height: 20, borderRadius: 6, border: '2px solid', borderColor: parts[key] ? '#DC2626' : '#D1D5DB', background: parts[key] ? '#DC2626' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {parts[key] && <Check size={13} color="#fff" />}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium">{label}</span>
+                    <span className="block text-xs text-gray-400">{desc}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="px-5 pb-5 space-y-3">
+              <button onClick={backup}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium active:scale-95"
+                style={{ background: ACCENT + '12', color: ACCENT }}>
+                <Download size={15} /> Download a backup first
+              </button>
+              <div>
+                <div className="text-xs text-gray-400 mb-1.5">Type <span className="font-bold text-gray-600">DELETE</span> to confirm</div>
+                <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="DELETE"
+                  className="w-full px-3 py-2.5 rounded-xl border outline-none text-sm" style={{ borderColor: '#E5E7EB' }} />
+              </div>
+              <button onClick={doErase} disabled={!armed}
+                className="w-full py-3 rounded-2xl text-sm font-semibold transition"
+                style={armed ? { background: '#DC2626', color: '#fff' } : { background: '#F3F4F6', color: '#9CA3AF' }}>
+                {anyPicked ? 'Erase selected — forever' : 'Pick something to erase'}
+              </button>
+              <button onClick={close} className="w-full py-2 text-sm font-medium text-gray-500">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -3398,6 +3694,19 @@ function NotesTab({ noteTabs, onSaveTabs, goals, onSaveGoals, noteFont, noteSize
   const lastSnapRef = useRef(0);
   const [histLen, setHistLen] = useState(0);
   const [colorOpen, setColorOpen] = useState(false);
+  const [editorH, setEditorH] = useState(340); // notebook height in px (drag the grip to change)
+  const resizeRef = useRef({ y: 0, h: 0, on: false });
+  const onGripDown = (e) => {
+    resizeRef.current = { y: e.clientY, h: editorH, on: true };
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  };
+  const onGripMove = (e) => {
+    if (!resizeRef.current.on) return;
+    const next = resizeRef.current.h + (e.clientY - resizeRef.current.y);
+    setEditorH(Math.max(150, Math.min(720, next)));
+  };
+  const onGripUp = () => { resizeRef.current.on = false; };
   const noteStack = (NOTE_FONTS.find((f) => f.key === noteFont) || NOTE_FONTS[0]).stack;
   const active = tabs.find((t) => t.id === activeId) || tabs[0];
   const INK_SWATCHES = ['#111827', '#6B7280', '#E11D48', '#EA580C', '#D97706', '#16A34A', '#0D9488', '#2563EB', '#7C3AED', '#DB2777'];
@@ -3586,8 +3895,14 @@ function NotesTab({ noteTabs, onSaveTabs, goals, onSaveGoals, noteFont, noteSize
         onInput={saveActive}
         data-ph="Dear notebook…"
         className="w-full outline-none note-editor"
-        style={{ minHeight: '38vh', maxHeight: '80vh', resize: 'vertical', overflow: 'auto', background: 'transparent', border: 'none', borderTop: '1px solid #EDEFEE', paddingTop: 10, fontFamily: noteStack, fontSize: noteSize, lineHeight: 1.7, color: noteColor }} />
-      <div className="text-right text-gray-400" style={{ fontSize: 11 }}>Drag the bottom-right corner to resize · saved automatically</div>
+        style={{ height: editorH, overflow: 'auto', background: 'transparent', border: 'none', borderTop: '1px solid #EDEFEE', paddingTop: 10, fontFamily: noteStack, fontSize: noteSize, lineHeight: 1.7, color: noteColor }} />
+      <div onPointerDown={onGripDown} onPointerMove={onGripMove} onPointerUp={onGripUp} onPointerCancel={onGripUp}
+        className="flex items-center justify-center select-none"
+        style={{ height: 26, cursor: 'ns-resize', touchAction: 'none', marginTop: 2 }}
+        aria-label="Drag to resize the note">
+        <div style={{ width: 44, height: 5, borderRadius: 5, background: '#D6D9D6' }} />
+      </div>
+      <div className="text-center text-gray-400" style={{ fontSize: 11 }}>Drag the bar to resize · saved automatically</div>
       </div>{/* editor panel */}
       </div>{/* notebook */}
 
@@ -3650,6 +3965,7 @@ function GoalsField({ icon, label, helper, placeholder, value, onChange }) {
 function GoalsPage({ goals, onSave, onBack }) {
   const g = goals || DEFAULT_GOALS;
   const [local, setLocal] = useState({ ...DEFAULT_GOALS, ...g });
+  const [noteOpen, setNoteOpen] = useState(false);
   const set = (key) => (val) => {
     const next = { ...local, [key]: val };
     setLocal(next);
@@ -3661,14 +3977,28 @@ function GoalsPage({ goals, onSave, onBack }) {
         <ArrowLeft size={16} /> Back to notes
       </button>
 
-      <div className="rounded-2xl p-4 border" style={{ borderColor: ACCENT + '33', background: ACCENT + '0D' }}>
-        <div className="text-xs font-semibold mb-1.5" style={{ color: ACCENT }}>A little note from Charlotte 💛</div>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--ink)' }}>
-          Hi friend! This page is built on the most effective, widely-used practices for shifting your mindset — the gentle
-          stuff that actually helps the best version of you come true. Me &amp; Claude Pro (LOL) would love to invite you on
-          this little journey of self-reflection: just fill out the prompts below, each one chosen to help you reach where
-          you want to be. Take your time, be honest, and have fun with it. Good luck :&gt;
-        </p>
+      <div>
+        <button onClick={() => setNoteOpen((v) => !v)}
+          className="w-full flex items-center justify-between gap-2 rounded-2xl px-4 py-3 border active:scale-[0.99] transition"
+          style={{ borderColor: ACCENT + '33', background: ACCENT + '0D' }}>
+          <span className="text-sm font-semibold" style={{ color: ACCENT }}>A lil note from Charlotte 💛</span>
+          <ChevronDown size={18} style={{ color: ACCENT, transform: noteOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+        </button>
+        {noteOpen && (
+          <div className="mt-2 rounded-2xl p-4"
+            style={{ background: '#FFFDF4', border: '1px solid #EDE6CE', boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
+              backgroundImage: 'repeating-linear-gradient(#FFFDF4, #FFFDF4 30px, #F1ECD8 31px)', fontFamily: "'Caveat', cursive" }}>
+            <p style={{ fontSize: 22, lineHeight: '31px', color: '#3A3A3A', margin: 0 }}>HI GANG!</p>
+            <p style={{ fontSize: 20, lineHeight: '31px', color: '#3A3A3A', marginTop: 6 }}>
+              i know manifesting isn’t for everybody, but I personally really believe in the power of shifting one’s mindset.
+              WITH THAT IN MIND, this cute lil section was built referencing the most effective, widely-used practices to help
+              u reach the best version of urself!
+            </p>
+            <p style={{ fontSize: 20, lineHeight: '31px', color: '#3A3A3A', marginTop: 6 }}>
+              so take ur time with this, be honest, &amp; have fun :)
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl p-5 text-white" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT}cc)` }}>
