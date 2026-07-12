@@ -446,7 +446,14 @@ function suggestCategory(desc, learned) {
 
 /* ----------------------------- storage ----------------------------- */
 
-const DATA_VERSION = 15;
+// Deleted expenses are kept this long, then purged automatically.
+// Small (an expense is ~150 bytes) and self-cleaning, so it can't grow forever.
+const TRASH_HOURS = 12;
+const TRASH_MS = TRASH_HOURS * 60 * 60 * 1000;
+const purgeTrash = (list) =>
+  (list || []).filter((t) => Date.now() - (t.deletedAt || 0) < TRASH_MS);
+
+const DATA_VERSION = 16;
 
 // One-time, in-place upgrades for data saved by older versions.
 function migrate(d) {
@@ -544,29 +551,58 @@ function migrate(d) {
     if (!d.learned || typeof d.learned !== 'object') d.learned = {};
     v = 15;
   }
+  if (v < 16) {
+    // "Recently deleted" bin: deleted expenses are recoverable for a while.
+    if (!Array.isArray(d.trash)) d.trash = [];
+    v = 16;
+  }
+  // clear out anything past its window every time the app loads
+  d.trash = purgeTrash(d.trash);
   d.v = v;
   return d;
 }
 
 // Cloud storage: one JSON row per signed-in user, isolated by Row Level Security.
+// Every read/write carries the row's `updated_at` stamp so a device that has been
+// sitting on an old copy can never overwrite newer changes made on another device.
 async function loadStore() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
     const { data, error } = await supabase
-      .from('app_data').select('data').eq('user_id', user.id).maybeSingle();
+      .from('app_data').select('data, updated_at').eq('user_id', user.id).maybeSingle();
     if (error) { console.error('loadStore', error); return null; }
-    return data ? data.data : null;
+    if (!data) return null;
+    return { data: data.data, stamp: data.updated_at };
   } catch (e) { console.error('loadStore', e); return null; }
 }
-async function saveStore(payload) {
+
+// Just the stamp — cheap way to poll "has another device changed anything?"
+async function fetchStamp() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from('app_data').select('updated_at').eq('user_id', user.id).maybeSingle();
+    if (error || !data) return null;
+    return data.updated_at;
+  } catch (e) { return null; }
+}
+
+// Returns the new stamp on success, or the string 'conflict' if the cloud copy
+// moved on since we loaded it (meaning another device saved in the meantime).
+async function saveStore(payload, baseStamp) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const remote = await fetchStamp();
+    if (remote && baseStamp && remote !== baseStamp) return 'conflict';
+    const stamp = new Date().toISOString();
     const { error } = await supabase.from('app_data')
-      .upsert({ user_id: user.id, data: payload, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-    if (error) console.error('saveStore', error);
-  } catch (e) { console.error('saveStore', e); }
+      .upsert({ user_id: user.id, data: payload, updated_at: stamp }, { onConflict: 'user_id' });
+    if (error) { console.error('saveStore', error); return null; }
+    return stamp;
+  } catch (e) { console.error('saveStore', e); return null; }
 }
 
 const seedData = () => ({
@@ -586,6 +622,7 @@ const seedData = () => ({
   appearance: { ...DEFAULT_APPEARANCE },
   goals: { ...DEFAULT_GOALS },
   learned: {},
+  trash: [],
   v: DATA_VERSION,
 });
 
@@ -637,24 +674,73 @@ export default function ExpenseTracker({ onSignOut }) {
   const undoTimer = useRef(null);
   const saveTimer = useRef(null);
 
+  const stampRef = useRef(null);      // updated_at of the cloud copy we're based on
+  const applyingRemote = useRef(false); // don't echo a freshly-pulled copy back up
+  const dirtyRef = useRef(false);      // we have local changes not yet saved
+
+  // pull the cloud copy into the app
+  const pull = async (force) => {
+    // don't stomp on edits the user just made and we haven't saved yet
+    if (!force && dirtyRef.current) return;
+    const res = await loadStore();
+    if (!res) return;
+    if (!force && res.stamp === stampRef.current) return;   // nothing new
+    applyingRemote.current = true;
+    stampRef.current = res.stamp;
+    setData(materializeRecurring(migrate(res.data)));
+  };
+
   // hydrate
   useEffect(() => {
     let alive = true;
-    loadStore().then((d) => {
+    loadStore().then((res) => {
       if (!alive) return;
-      const base = d ? migrate(d) : seedData();
-      setData(materializeRecurring(base));
+      applyingRemote.current = true;
+      if (res) {
+        stampRef.current = res.stamp;
+        setData(materializeRecurring(migrate(res.data)));
+      } else {
+        applyingRemote.current = false;   // brand-new account: this WILL be saved
+        setData(materializeRecurring(seedData()));
+      }
       setLoaded(true);
     });
     return () => { alive = false; };
   }, []);
 
-  // persist (debounced)
+  // persist (debounced) — refuses to overwrite a newer cloud copy
   useEffect(() => {
     if (!loaded || !data) return;
+    if (applyingRemote.current) { applyingRemote.current = false; return; } // came FROM cloud
+    dirtyRef.current = true;
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => saveStore(data), 350);
+    saveTimer.current = setTimeout(async () => {
+      const res = await saveStore(data, stampRef.current);
+      if (res === 'conflict') {
+        // another device saved while we were on an old copy — take theirs.
+        dirtyRef.current = false;
+        await pull(true);
+        return;
+      }
+      if (res) stampRef.current = res;
+      dirtyRef.current = false;
+    }, 350);
   }, [data, loaded]);
+
+  // keep devices in step: re-check the cloud when you come back to the app,
+  // and quietly every 15s while it's open.
+  useEffect(() => {
+    if (!loaded) return;
+    const onFocus = () => { if (document.visibilityState !== 'hidden') pull(false); };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    const iv = setInterval(onFocus, 15000);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+      clearInterval(iv);
+    };
+  }, [loaded]); // eslint-disable-line
 
   const cats = data?.categories || [];
   const rates = data?.rates || DEFAULT_RATES;
@@ -667,13 +753,40 @@ export default function ExpenseTracker({ onSignOut }) {
   /* ---------- mutations ---------- */
   const update = (patch) => setData((d) => ({ ...d, ...patch }));
 
+  // Undo lives in memory only (never saved), so it costs zero storage and
+  // vanishes on refresh. It holds at most the last action.
+  const flagUndo = (payload) => {
+    setUndo(payload);
+    clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndo(null), 6000);
+  };
+
   const addExpense = (e) => {
     update({ expenses: [e, ...data.expenses] });
-    setUndo(e);
-    clearTimeout(undoTimer.current);
-    undoTimer.current = setTimeout(() => setUndo(null), 5000);
+    flagUndo({ kind: 'add', label: 'Expense added', items: [{ e }] });
   };
-  const doUndo = () => { if (undo) { removeExpense(undo.id); setUndo(null); } };
+
+  const doUndo = () => {
+    if (!undo) return;
+    if (undo.kind === 'add') {
+      const id = undo.items[0].e.id;
+      setData((d) => ({ ...d, expenses: d.expenses.filter((x) => x.id !== id) }));
+    } else {
+      // put the deleted rows back exactly where they were, and take them out of the bin
+      const ids = new Set(undo.items.map((it) => it.e.id));
+      setData((d) => {
+        const list = [...d.expenses];
+        [...undo.items].sort((a, b) => a.idx - b.idx)
+          .forEach(({ e, idx }) => {
+            if (list.some((x) => x.id === e.id)) return;
+            list.splice(Math.min(idx, list.length), 0, e);
+          });
+        return { ...d, expenses: list, trash: purgeTrash(d.trash).filter((t) => !ids.has(t.e.id)) };
+      });
+    }
+    setUndo(null);
+    clearTimeout(undoTimer.current);
+  };
   const addRecurring = (rule) =>
     setData((d) => materializeRecurring({ ...d, recurring: [rule, ...(d.recurring || [])] }));
   const addCategory = (c) => update({ categories: [...data.categories, c] });
@@ -688,11 +801,54 @@ export default function ExpenseTracker({ onSignOut }) {
     }
     update({ expenses: data.expenses.map((x) => (x.id === e.id ? e : x)), learned });
   };
-  const removeExpense = (id) =>
-    update({ expenses: data.expenses.filter((x) => x.id !== id) });
+  const removeExpense = (id) => {
+    const idx = data.expenses.findIndex((x) => x.id === id);
+    if (idx < 0) return;
+    const e = data.expenses[idx];
+    const items = [{ e, idx }];
+    update({
+      expenses: data.expenses.filter((x) => x.id !== id),
+      trash: [...items.map((it) => ({ ...it, deletedAt: Date.now() })),
+              ...purgeTrash(data.trash)],
+    });
+    flagUndo({ kind: 'delete', label: 'Expense deleted', items });
+  };
   const removeExpenses = (ids) => {
     const set = new Set(ids);
-    update({ expenses: data.expenses.filter((x) => !set.has(x.id)) });
+    const items = [];
+    data.expenses.forEach((e, idx) => { if (set.has(e.id)) items.push({ e, idx }); });
+    if (!items.length) return;
+    update({
+      expenses: data.expenses.filter((x) => !set.has(x.id)),
+      trash: [...items.map((it) => ({ ...it, deletedAt: Date.now() })),
+              ...purgeTrash(data.trash)],
+    });
+    flagUndo({
+      kind: 'delete',
+      label: `${items.length} ${items.length === 1 ? 'expense' : 'expenses'} deleted`,
+      items,
+    });
+  };
+
+  // Restore one or more expenses out of the bin, back into their old positions.
+  const restoreFromTrash = (ids) => {
+    const set = new Set(ids);
+    const picked = (data.trash || []).filter((t) => set.has(t.e.id));
+    if (!picked.length) return;
+    setData((d) => {
+      const list = [...d.expenses];
+      [...picked].sort((a, b) => a.idx - b.idx)
+        .forEach(({ e, idx }) => {
+          if (list.some((x) => x.id === e.id)) return;      // already back
+          list.splice(Math.min(idx, list.length), 0, e);
+        });
+      return { ...d, expenses: list, trash: purgeTrash(d.trash).filter((t) => !set.has(t.e.id)) };
+    });
+  };
+  const purgeTrashNow = (ids) => {
+    if (!ids) { update({ trash: [] }); return; }
+    const set = new Set(ids);
+    update({ trash: purgeTrash(data.trash).filter((t) => !set.has(t.e.id)) });
   };
 
   if (!loaded || !data) {
@@ -789,7 +945,8 @@ export default function ExpenseTracker({ onSignOut }) {
               onSetNote={(patch) => update({ appearance: { ...(data.appearance || DEFAULT_APPEARANCE), ...patch } })} />
           )}
           {tab === 'settings' && (
-            <SettingsTab data={data} update={update} setData={setData} onSignOut={onSignOut} />
+            <SettingsTab data={data} update={update} setData={setData} onSignOut={onSignOut}
+              catById={catById} onRestore={restoreFromTrash} onPurge={purgeTrashNow} />
           )}
         </div>
 
@@ -807,7 +964,7 @@ export default function ExpenseTracker({ onSignOut }) {
         <div className="fixed left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4" style={{ bottom: 84 }}>
           <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-white"
             style={{ background: '#1B2420', boxShadow: '0 6px 20px rgba(0,0,0,0.18)' }}>
-            <span className="text-sm">Expense added</span>
+            <span className="text-sm">{undo.label || 'Done'}</span>
             <button onClick={doUndo} className="text-sm font-semibold underline">Undo</button>
           </div>
         </div>
@@ -3211,8 +3368,56 @@ function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete }) {
 
 /* ----------------------------- SETTINGS ----------------------------- */
 
-function SettingsTab({ data, update, setData, onSignOut }) {
-  const [open, setOpen] = useState(null); // 'cats' | 'rates' | 'budget' | 'data'
+// "Recently deleted" — expenses stay here for TRASH_HOURS, then vanish on their own.
+function TrashBin({ trash, catById, onRestore, onPurge }) {
+  if (!trash.length) {
+    return <div className="text-xs text-gray-400">Deleted expenses show up here for {TRASH_HOURS} hours, so you can bring them back. Then they're gone for good.</div>;
+  }
+  const leftFor = (t) => {
+    const ms = TRASH_MS - (Date.now() - (t.deletedAt || 0));
+    const h = Math.floor(ms / 3600000);
+    const m = Math.max(1, Math.round((ms % 3600000) / 60000));
+    return h > 0 ? `${h}h ${m}m left` : `${m}m left`;
+  };
+  return (
+    <div className="space-y-2">
+      <div className="text-xs text-gray-400">
+        Deleted in the last {TRASH_HOURS} hours. Tap Restore to bring one back — otherwise they clear themselves.
+      </div>
+      <div className="rounded-xl border border-gray-100 divide-y divide-gray-50">
+        {trash.map((t) => {
+          const cat = catById && catById[t.e.catId];
+          return (
+            <div key={t.e.id} className="flex items-center gap-2 px-3 py-2.5">
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: (cat && cat.color) || '#9CA3AF' }} />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm text-gray-700 truncate">{t.e.desc}</div>
+                <div className="text-gray-400" style={{ fontSize: 11 }}>
+                  {fmtSGD(t.e.sgd)} · {cat ? cat.name : 'General'} · {leftFor(t)}
+                </div>
+              </div>
+              <button onClick={() => onRestore([t.e.id])}
+                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold shrink-0 active:scale-95"
+                style={{ background: ACCENT + '14', color: ACCENT }}>Restore</button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-2">
+        <button onClick={() => onRestore(trash.map((t) => t.e.id))}
+          className="flex-1 py-2 rounded-xl text-sm font-medium text-white active:scale-95"
+          style={{ background: ACCENT }}>Restore all</button>
+        <button onClick={() => { if (confirm('Empty the bin? These expenses cannot be recovered.')) onPurge(); }}
+          className="flex-1 py-2 rounded-xl text-sm font-medium active:scale-95"
+          style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#C0655F' }}>Empty bin</button>
+      </div>
+    </div>
+  );
+}
+
+function SettingsTab({ data, update, setData, onSignOut, catById, onRestore, onPurge }) {
+  const [open, setOpen] = useState(null); // 'cats' | 'rates' | 'budget' | 'data' | 'trash'
+  const liveTrash = purgeTrash(data.trash);
   return (
     <div className="space-y-3">
       <SettingRow icon={<Layers size={18} />} title="Categories" desc="Add, rename, recolor, or remove"
@@ -3273,6 +3478,12 @@ function SettingsTab({ data, update, setData, onSignOut }) {
       <SettingRow icon={<RotateCcw size={18} />} title="Recurring expenses" desc={`${(data.recurring || []).filter((r) => r.active).length} active`}
         open={open === 'recur'} onClick={() => setOpen(open === 'recur' ? null : 'recur')}>
         <RecurringEditor data={data} update={update} />
+      </SettingRow>
+
+      <SettingRow icon={<RotateCcw size={18} />} title="Recently deleted"
+        desc={liveTrash.length ? `${liveTrash.length} ${liveTrash.length === 1 ? 'expense' : 'expenses'} · restorable for ${TRASH_HOURS}h` : 'Nothing deleted recently'}
+        open={open === 'trash'} onClick={() => setOpen(open === 'trash' ? null : 'trash')}>
+        <TrashBin trash={liveTrash} catById={catById} onRestore={onRestore} onPurge={onPurge} />
       </SettingRow>
 
       <SettingRow icon={<Download size={18} />} title="Backup & export" desc="Download CSV or a backup file"
@@ -3377,7 +3588,7 @@ function DangerZone({ data, update }) {
   const doErase = () => {
     if (!armed) return;
     const patch = {};
-    if (parts.expenses) patch.expenses = [];
+    if (parts.expenses) { patch.expenses = []; patch.trash = []; }
     if (parts.trips) { patch.trips = []; patch.activeTripId = null; }
     if (parts.recurring) patch.recurring = [];
     if (parts.notes) patch.noteTabs = [{ id: uid(), title: 'Notes', html: '' }];
