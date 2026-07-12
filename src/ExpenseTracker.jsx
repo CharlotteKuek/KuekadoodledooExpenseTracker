@@ -768,10 +768,11 @@ export default function ExpenseTracker({ onSignOut }) {
             <HomeTab
               data={data} cats={cats} rates={rates} activeTrip={activeTrip}
               catById={catById} onAdd={addExpense} onAddRecurring={addRecurring} onAddCategory={addCategory} onEdit={setEditing}
+              onDelete={removeExpense}
             />
           )}
           {tab === 'insights' && (
-            <InsightsTab data={data} cats={cats} catById={catById} activeTrip={activeTrip} onEdit={setEditing} />
+            <InsightsTab data={data} cats={cats} catById={catById} activeTrip={activeTrip} onEdit={setEditing} onDelete={removeExpense} />
           )}
           {tab === 'trips' && (
             <TripsTab data={data} cats={cats} catById={catById} rates={rates} update={update} setTab={setTab} />
@@ -1037,7 +1038,7 @@ function Header({ tab, activeTrip, bg, onSettings }) {
 
 /* ----------------------------- HOME / quick add ----------------------------- */
 
-function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring, onAddCategory, onEdit }) {
+function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring, onAddCategory, onEdit, onDelete }) {
   const baseCur = activeTrip ? activeTrip.currency : BASE_CUR;
   const [raw, setRaw] = useState('');
   const [amount, setAmount] = useState('');
@@ -1135,7 +1136,12 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   // today's spend
   const todays = data.expenses.filter((e) => e.date === todayISO());
   const todayTotal = todays.reduce((s, e) => s + e.sgd, 0);
-  const recent = data.expenses.slice(0, 6);
+  // Everything logged in the current calendar month, newest first (no cap).
+  const thisMonth = monthKey(todayISO());
+  const recent = useMemo(() => data.expenses
+    .filter((e) => monthKey(e.date) === thisMonth)
+    .sort((a, b) => (a.date === b.date ? (b.ts || 0) - (a.ts || 0) : (a.date < b.date ? 1 : -1))),
+    [data.expenses, thisMonth]);
   const accent = activeTrip?.color || ACCENT;
 
   return (
@@ -1414,12 +1420,18 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
       {/* recent */}
       {recent.length > 0 ? (
         <div>
-          <div className="text-xs text-gray-400 font-medium mb-2 px-1">Recent</div>
-          <Card className="divide-y divide-gray-50">
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-xs text-gray-400 font-medium">This month</span>
+            <span className="text-xs text-gray-300">{recent.length} {recent.length === 1 ? 'expense' : 'expenses'}</span>
+          </div>
+          <Card className="divide-y divide-gray-50 overflow-hidden">
             {recent.map((e) => (
-              <ExpenseRow key={e.id} e={e} cat={catById[e.catId]} onClick={() => onEdit(e)} />
+              <SwipeRow key={e.id} onDelete={() => onDelete && onDelete(e.id)}>
+                <ExpenseRow e={e} cat={catById[e.catId]} onClick={() => onEdit(e)} />
+              </SwipeRow>
             ))}
           </Card>
+          <div className="text-center text-gray-300 mt-1.5" style={{ fontSize: 11 }}>Swipe a row left to delete</div>
         </div>
       ) : (
         <div className="text-center text-gray-400 text-sm py-2">
@@ -1463,7 +1475,7 @@ function ExpenseRow({ e, cat, onClick, amount, note, lead, selected }) {
 
 /* ----------------------------- INSIGHTS ----------------------------- */
 
-function InsightsTab({ data, cats, catById, activeTrip, onEdit }) {
+function InsightsTab({ data, cats, catById, activeTrip, onEdit, onDelete }) {
   const [mode, setMode] = useState('month'); // 'week' | 'month' | 'year' | 'trips'
   const [anchor, setAnchor] = useState(todayISO());
   const [detailCatId, setDetailCatId] = useState(null);
@@ -1492,14 +1504,14 @@ function InsightsTab({ data, cats, catById, activeTrip, onEdit }) {
       <CategoryDetail
         cat={catById[detailCatId]} data={data} catById={catById}
         initialType={type} initialAnchor={anchor}
-        onBack={() => setDetailCatId(null)} onEdit={onEdit}
+        onBack={() => setDetailCatId(null)} onEdit={onEdit} onDelete={onDelete}
       />
     );
   }
   if (dayDetail) {
     return (
       <DayDetail date={dayDetail} data={data} cats={cats} catById={catById}
-        onBack={() => setDayDetail(null)} onEdit={onEdit} />
+        onBack={() => setDayDetail(null)} onEdit={onEdit} onDelete={onDelete} />
     );
   }
 
@@ -1665,9 +1677,11 @@ function InsightsTab({ data, cats, catById, activeTrip, onEdit }) {
               <span className="text-xs text-gray-400 font-medium">Expenses this {type}</span>
               <SortSelect value={listSort} onChange={setListSort} />
             </div>
-            <Card className="divide-y divide-gray-50">
+            <Card className="divide-y divide-gray-50 overflow-hidden">
               {[...periodExp].sort(SORTS[listSort].cmp).slice(0, 50).map((e) => (
-                <ExpenseRow key={e.id} e={e} cat={catById[e.catId]} onClick={() => onEdit && onEdit(e)} />
+                <SwipeRow key={e.id} onDelete={() => onDelete && onDelete(e.id)}>
+                  <ExpenseRow e={e} cat={catById[e.catId]} onClick={() => onEdit && onEdit(e)} />
+                </SwipeRow>
               ))}
             </Card>
             {periodExp.length > 50 && (
@@ -1956,7 +1970,7 @@ function DonutChart({ data, total, caption, onSlice }) {
   );
 }
 
-function CategoryDetail({ cat, data, catById, initialType, initialAnchor, onBack, onEdit }) {
+function CategoryDetail({ cat, data, catById, initialType, initialAnchor, onBack, onEdit, onDelete }) {
   const [type, setType] = useState(initialType && initialType !== 'trips' ? initialType : (initialType || 'month'));
   const [anchor, setAnchor] = useState(initialAnchor || todayISO());
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -2124,9 +2138,11 @@ function CategoryDetail({ cat, data, catById, initialType, initialAnchor, onBack
             No {cat.name.toLowerCase()} spending this {type}.
           </div>
         ) : (
-          <Card className="divide-y divide-gray-50">
+          <Card className="divide-y divide-gray-50 overflow-hidden">
             {listed.map((e) => (
-              <ExpenseRow key={e.id} e={e} cat={catById[e.catId]} onClick={() => onEdit && onEdit(e)} />
+              <SwipeRow key={e.id} onDelete={() => onDelete && onDelete(e.id)}>
+                <ExpenseRow e={e} cat={catById[e.catId]} onClick={() => onEdit && onEdit(e)} />
+              </SwipeRow>
             ))}
           </Card>
         )}
@@ -2141,7 +2157,7 @@ function CategoryDetail({ cat, data, catById, initialType, initialAnchor, onBack
   );
 }
 
-function DayDetail({ date, data, cats, catById, onBack, onEdit }) {
+function DayDetail({ date, data, cats, catById, onBack, onEdit, onDelete }) {
   // allocations landing on this date (spread expenses contribute a share)
   const allocs = [];
   for (const e of data.expenses) for (const a of allocations(e)) if (a.date === date) allocs.push(a);
@@ -2186,11 +2202,13 @@ function DayDetail({ date, data, cats, catById, onBack, onEdit }) {
       {allocs.length === 0 ? (
         <div className="text-center text-gray-400 text-sm py-10">Nothing spent on this day.</div>
       ) : (
-        <Card className="divide-y divide-gray-50">
+        <Card className="divide-y divide-gray-50 overflow-hidden">
           {allocs.map((a, i) => (
-            <ExpenseRow key={a.e.id + ':' + i} e={a.e} cat={catById[a.e.catId]}
-              amount={a.amt} note={(a.e.spreadDays || 1) > 1 ? 'daily share' : null}
-              onClick={() => onEdit && onEdit(a.e)} />
+            <SwipeRow key={a.e.id + ':' + i} onDelete={() => onDelete && onDelete(a.e.id)}>
+              <ExpenseRow e={a.e} cat={catById[a.e.catId]}
+                amount={a.amt} note={(a.e.spreadDays || 1) > 1 ? 'daily share' : null}
+                onClick={() => onEdit && onEdit(a.e)} />
+            </SwipeRow>
           ))}
         </Card>
       )}
