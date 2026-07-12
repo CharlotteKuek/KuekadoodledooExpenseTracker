@@ -163,19 +163,36 @@ const IC_TELEGRAM = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAA
 const IC_INSTAGRAM = 'data:image/png;base64,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';
 
 const KEYWORDS = [
-  [['grab', 'gojek', 'taxi', 'uber', 'cab', 'tada', 'comfort', 'ryde', 'zig', 'grabcar'], 'transport', 'tp_ride'],
-  [['mrt', 'bus', 'ezlink', 'ez-link', 'ez link', 'simplygo', 'myrapid', 'rapid', 'transitlink', 'train', 'transit', 'metro', 'subway', 'octopus', 'suica', 'top up card', 'card top'], 'transport', 'tp_public'],
-  [['flight', 'flights', 'airfare', 'airline', 'airlines', 'singapore airlines', 'sia', 'scoot', 'jetstar', 'airasia', 'cathay', 'emirates', 'qantas', 'batik', 'cebu pacific', 'ana', 'jal', 'boarding'], 'transport', 'tp_flight'],
-  [['hotel', 'hostel', 'airbnb', 'motel', 'lodge', 'resort', 'accommodation', 'booking.com', 'agoda', 'expedia'], 'accommodation', null],
-  [['ntuc', 'fairprice', 'supermarket', 'cold storage', 'giant', 'sheng siong', 'sheng shiong', 'prime market', 'donki', 'don don donki', 'grocer', 'groceries', 'market'], 'groceries', null],
-  [['netflix', 'spotify', 'icloud', 'apple.com', 'itunes', 'app store', 'appstore', 'apple', 'google', 'youtube premium', 'youtube', 'subscription', 'disney', 'hbo', 'chatgpt', 'openai', 'anthropic', 'claude', 'notion', 'adobe', 'canva', 'patreon', 'dropbox'], 'subscriptions', null],
-  [['restaurant', 'cafe', 'café', 'bistro', 'eatery', 'diner', 'starbucks', 'coffee bean', 'toast box', 'mcdonald', 'mcdonalds', 'kfc', 'burger king', 'subway', 'jollibee', 'texas chicken', 'shake shack', 'pizza', 'dominos', 'pizza hut', 'sushi', 'ramen', 'izakaya', 'saizeriya', 'dinner', 'brunch', 'buffet', 'bar ', 'pub', 'bakery', 'dessert', 'ya kun', 'paradise', 'din tai fung'], 'restaurants', null],
-  [['hawker', 'kopitiam', 'food court', 'foodcourt', 'coffee shop', 'coffeeshop', 'kopi', 'canteen', 'cai fan', 'economic rice', 'mixed rice', 'lunch', 'breakfast', 'food', 'eat', 'snack', 'bubble tea', 'toast', 'prata', 'chicken rice'], 'food', null],
-  [['movie', 'cinema', 'concert', 'game', 'arcade', 'karaoke', 'ktv', 'gig', 'steam', 'playstation', 'nintendo', 'bowling'], 'entertainment', null],
-  [['shopee', 'lazada', 'amazon', 'qoo10', 'taobao', 'uniqlo', 'clothes', 'shirt', 'shoes', 'shopping', 'zara', 'h&m', 'cotton on', 'decathlon', 'ikea', 'daiso', 'mothercare', 'toys r us', 'popular', 'challenger', 'courts', 'sephora'], 'shopping', null],
-  [['school', 'textbook', 'course', 'tuition', 'exam', 'module', 'printing', 'udemy', 'coursera'], 'education', 'edu_books'],
-  [['pharmacy', 'clinic', 'doctor', 'medicine', 'guardian', 'watsons', 'unity', 'dental', 'hospital', 'polyclinic', 'gym', 'fitness'], 'health', null],
-  [['gift', 'present', 'donation', 'birthday', 'charity'], 'gifts', null],
+  [['grab', 'gojek', 'taxi', 'uber', 'cab', 'tada', 'comfortdelgro', 'comfort', 'ryde', 'zig', 'grabcar', 'bolt', 'lyft', 'didi'], 'transport', 'tp_ride'],
+  [['mrt', 'bus', 'ezlink', 'ez-link', 'ez link', 'simplygo', 'myrapid', 'rapid', 'transitlink', 'train', 'transit', 'metro', 'subway ride', 'octopus', 'suica', 'top up card', 'card top', 'smrt', 'sbs transit', 'lta', 'parking', 'carpark', 'season parking', 'erp', 'petrol', 'shell', 'esso', 'caltex', 'spc', 'sinopec', 'toll'], 'transport', 'tp_public'],
+  [['flight', 'flights', 'airfare', 'airline', 'airlines', 'singapore airlines', 'scoot', 'jetstar', 'airasia', 'cathay', 'emirates', 'qantas', 'batik', 'cebu pacific', 'boarding', 'changi airport', 'klm', 'lufthansa', 'turkish airlines'], 'transport', 'tp_flight'],
+  [['hotel', 'hostel', 'airbnb', 'motel', 'lodge', 'resort', 'accommodation', 'booking.com', 'agoda', 'expedia', 'trivago', 'ibis', 'marriott', 'hilton', 'capsule'], 'accommodation', null],
+  [['ntuc', 'fairprice', 'supermarket', 'cold storage', 'giant', 'sheng siong', 'sheng shiong', 'prime market', 'donki', 'don don donki', 'grocer', 'groceries', 'mustafa', 'redmart', 'hao mart', 'cs fresh', 'little farms', 'wet market', 'minimart', 'provision'], 'groceries', null],
+  [['netflix', 'spotify', 'icloud', 'apple.com', 'itunes', 'app store', 'appstore', 'apple', 'google', 'youtube premium', 'youtube', 'subscription', 'disney', 'hbo', 'chatgpt', 'openai', 'anthropic', 'claude', 'notion', 'adobe', 'canva', 'patreon', 'dropbox', 'microsoft', 'linkedin premium', 'duolingo', 'telegram premium', 'vercel', 'supabase', 'github', 'namecheap', 'godaddy', 'cloudflare'], 'subscriptions', null],
+
+  // --- Restaurants: named chains, cuisines, and generic restaurant words ---
+  [['restaurant', 'restaurante', 'cafe', 'café', 'bistro', 'eatery', 'diner', 'brasserie', 'trattoria', 'osteria', 'grill', 'steakhouse', 'steak', 'bbq', 'barbecue', 'hotpot', 'hot pot', 'shabu', 'yakiniku', 'teppan', 'omakase', 'sushi', 'sashimi', 'ramen', 'udon', 'soba', 'izakaya', 'yakitori', 'donburi', 'katsu', 'tonkatsu', 'gyoza', 'bento', 'dim sum', 'dimsum', 'wok', 'noodle', 'noodles', 'la mian', 'lamian', 'mee', 'bak kut teh', 'zi char', 'ze char', 'seafood', 'crab', 'nasi', 'satay', 'rendang', 'briyani', 'biryani', 'thosai', 'dosa', 'curry', 'tandoor', 'kebab', 'shawarma', 'falafel', 'taco', 'burrito', 'tapas', 'paella', 'pho', 'banh mi', 'tom yum', 'pad thai', 'bibimbap', 'kimchi', 'korean bbq',
+    'pizza', 'pizzeria', 'pasta', 'burger', 'burgers', 'sandwich', 'deli', 'salad', 'poke', 'wings', 'fried chicken',
+    'mcdonald', 'mcdonalds', 'kfc', 'burger king', 'jollibee', 'texas chicken', 'popeyes', 'shake shack', 'five guys', 'wendy', 'subway sandwich', 'dominos', "domino's", 'pizza hut', 'papa john', 'canadian pizza',
+    'starbucks', 'coffee bean', 'toast box', 'ya kun', 'tiong bahru bakery', 'paul', 'bakery', 'patisserie', 'boulangerie', 'cake', 'dessert', 'gelato', 'ice cream', 'creamery', 'yogurt', 'waffle', 'crepe', 'churros',
+    'din tai fung', 'crystal jade', 'paradise', 'putien', 'imperial treasure', 'jumbo', 'long beach', 'swensen', 'collin', 'aston', 'astons', 'pastamania', 'saizeriya', 'sushi tei', 'genki', 'itacho', 'ichiban', 'tempura', 'marche', 'fish & co', 'fish and co', 'manhattan fish', 'nandos', "nando's", 'pizza express', 'wingstop', 'mos burger', 'lotteria', 'yoshinoya', 'pepper lunch', 'ippudo', 'ajisen', 'tampopo', 'nam nam', 'soup restaurant', 'golden wok', 'dian xiao er', 'haidilao', 'beauty in the pot', 'seoul garden', 'ktv buffet',
+    'bar', 'pub', 'tavern', 'brewery', 'brewhouse', 'lounge', 'cocktail', 'wine', 'beer', 'whisky', 'sake',
+    'dinner', 'brunch', 'buffet', 'high tea', 'supper', 'kitchen', 'house of', 'canteen deluxe'], 'restaurants', null],
+
+  // --- Food (casual / hawker / groceries-to-eat / generic) ---
+  [['hawker', 'kopitiam', 'food court', 'foodcourt', 'food centre', 'food center', 'coffee shop', 'coffeeshop', 'kopi', 'canteen', 'cai fan', 'economic rice', 'mixed rice', 'lunch', 'breakfast', 'food', 'eat', 'snack', 'bubble tea', 'boba', 'liho', 'koi', 'gong cha', 'chatime', 'toast', 'prata', 'roti', 'chwee kueh', 'you tiao', 'soya', 'tau huay', 'drink', 'juice', 'smoothie', 'milo', 'teh', 'kaya', 'porridge', 'congee', 'soup', 'dumpling', 'bao', 'popiah', 'rojak', 'laksa', 'wanton', 'fishball', 'yong tau foo', 'ban mian', 'lor mee', 'char kway teow', 'hokkien mee', '7-eleven', '7 eleven', 'seven eleven', 'cheers', 'convenience', 'lawson', 'familymart', 'family mart', 'circle k', 'vending'], 'food', null],
+
+  [['movie', 'cinema', 'cineplex', 'golden village', 'shaw', 'cathay cineplex', 'gv ', 'concert', 'ticket', 'arcade', 'karaoke', 'ktv', 'gig', 'steam', 'playstation', 'nintendo', 'xbox', 'bowling', 'billiard', 'pool hall', 'escape room', 'zoo', 'aquarium', 'museum', 'gallery', 'theme park', 'universal studios', 'sentosa', 'club', 'nightclub', 'board game'], 'entertainment', null],
+
+  [['shopee', 'lazada', 'amazon', 'qoo10', 'taobao', 'aliexpress', 'temu', 'carousell', 'uniqlo', 'clothes', 'clothing', 'apparel', 'shirt', 'shoes', 'sneaker', 'shopping', 'zara', 'h&m', 'cotton on', 'muji', 'decathlon', 'ikea', 'daiso', 'mothercare', 'toys r us', 'challenger', 'courts', 'harvey norman', 'sephora', 'watsons beauty', 'lululemon', 'nike', 'adidas', 'new balance', 'charles & keith', 'pull&bear', 'bershka', 'typo', 'smiggle', 'miniso', 'value dollar', 'department store', 'takashimaya', 'isetan', 'bhg', 'metro dept'], 'shopping', null],
+
+  [['school', 'textbook', 'course', 'tuition', 'exam', 'module', 'printing', 'udemy', 'coursera', 'kinokuniya', 'popular bookstore', 'book', 'books', 'bookstore', 'stationery', 'library', 'university', 'nus', 'ntu', 'smu', 'sutd', 'polytechnic', 'workshop', 'certification'], 'education', 'edu_books'],
+
+  [['pharmacy', 'clinic', 'doctor', 'medicine', 'guardian', 'watsons', 'unity', 'dental', 'dentist', 'hospital', 'polyclinic', 'gym', 'fitness', 'anytime fitness', 'gymmboxx', 'yoga', 'pilates', 'physio', 'chiropractic', 'tcm', 'optical', 'spectacle', 'owndays', 'specsavers', 'massage', 'salon', 'haircut', 'barber', 'nail', 'spa'], 'health', null],
+
+  [['gift', 'present', 'donation', 'birthday', 'charity', 'wedding', 'ang bao', 'angbao', 'red packet', 'flower', 'florist'], 'gifts', null],
+
+  [['insurance', 'bank fee', 'service charge', 'admin fee', 'late fee', 'interest', 'gst', 'tax', 'stamp duty', 'transfer fee', 'atm'], 'fees', null],
 ];
 
 /* ----------------------------- helpers ----------------------------- */
@@ -399,7 +416,27 @@ function parseEntry(text) {
   return { amount, desc };
 }
 
-function suggestCategory(desc) {
+// Normalised merchant key used by the "remembers your corrections" memory.
+// "FISH & CO - OUR TAMPINES" and "Fish & Co" collapse to the same key.
+function merchantKey(desc) {
+  let s = (desc || '').toLowerCase();
+  s = s.replace(/[0-9]+(\.[0-9]+)?/g, ' ');            // drop amounts / numbers
+  s = s.replace(/\b(pte|ltd|llp|inc|sg|s'pore|singapore|the)\b/g, ' ');
+  s = s.replace(/[^a-z& ]+/g, ' ');                     // punctuation -> space
+  s = s.replace(/\s+/g, ' ').trim();
+  // keep the leading, most identifying part of the name
+  return s.split(' ').slice(0, 3).join(' ');
+}
+
+// Suggest a category for a description.
+// First: what you've taught it. Then: keyword rules. Else: nothing.
+function suggestCategory(desc, learned) {
+  if (!desc) return null;
+  const key = merchantKey(desc);
+  if (learned && key && learned[key]) {
+    const l = learned[key];
+    return { catId: l.catId, subId: l.subId || null, learned: true };
+  }
   const d = ' ' + desc.toLowerCase() + ' ';
   for (const [words, cat, sub] of KEYWORDS) {
     if (words.some((w) => d.includes(w))) return { catId: cat, subId: sub };
@@ -409,7 +446,7 @@ function suggestCategory(desc) {
 
 /* ----------------------------- storage ----------------------------- */
 
-const DATA_VERSION = 14;
+const DATA_VERSION = 15;
 
 // One-time, in-place upgrades for data saved by older versions.
 function migrate(d) {
@@ -502,6 +539,11 @@ function migrate(d) {
     }
     v = 14;
   }
+  if (v < 15) {
+    // Categoriser now remembers your corrections (merchant -> category).
+    if (!d.learned || typeof d.learned !== 'object') d.learned = {};
+    v = 15;
+  }
   d.v = v;
   return d;
 }
@@ -543,6 +585,7 @@ const seedData = () => ({
   recurring: [],
   appearance: { ...DEFAULT_APPEARANCE },
   goals: { ...DEFAULT_GOALS },
+  learned: {},
   v: DATA_VERSION,
 });
 
@@ -634,8 +677,17 @@ export default function ExpenseTracker({ onSignOut }) {
   const addRecurring = (rule) =>
     setData((d) => materializeRecurring({ ...d, recurring: [rule, ...(d.recurring || [])] }));
   const addCategory = (c) => update({ categories: [...data.categories, c] });
-  const editExpense = (e) =>
-    update({ expenses: data.expenses.map((x) => (x.id === e.id ? e : x)) });
+  // Editing an expense teaches the categoriser: if you moved it to a different
+  // category, remember that this merchant belongs there from now on.
+  const editExpense = (e) => {
+    const prev = data.expenses.find((x) => x.id === e.id);
+    const learned = { ...(data.learned || {}) };
+    const key = merchantKey(e.desc);
+    if (key && e.catId && (!prev || prev.catId !== e.catId || prev.subId !== e.subId)) {
+      learned[key] = { catId: e.catId, subId: e.subId || null };
+    }
+    update({ expenses: data.expenses.map((x) => (x.id === e.id ? e : x)), learned });
+  };
   const removeExpense = (id) =>
     update({ expenses: data.expenses.filter((x) => x.id !== id) });
   const removeExpenses = (ids) => {
@@ -1016,7 +1068,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   // live suggestion
   useEffect(() => {
     if (!desc) return;
-    const s = suggestCategory(desc);
+    const s = suggestCategory(desc, data.learned);
     if (s && !catId) { setCatId(s.catId); setSubId(s.subId); }
   }, [desc]); // eslint-disable-line
 
@@ -3570,33 +3622,44 @@ function RatesEditor({ data, update }) {
   );
 }
 
-function BudgetEditor({ data, update }) {
-  const b = data.budgets || { week: 0, month: data.budget || 0, year: 0 };
-  const [week, setWeek] = useState(b.week || '');
-  const [month, setMonth] = useState(b.month || '');
-  const [year, setYear] = useState(b.year || '');
-  const save = () => {
-    const budgets = { week: parseFloat(week) || 0, month: parseFloat(month) || 0, year: parseFloat(year) || 0 };
-    update({ budgets, budget: budgets.month });
-  };
-  const Field = ({ label, val, setVal }) => (
+// Defined at module level (NOT inside BudgetEditor) so React keeps the same
+// input element across renders — otherwise the field remounts on every
+// keystroke and the mobile keyboard closes.
+function BudgetField({ label, val, setVal }) {
+  return (
     <div className="flex items-center justify-between gap-2">
       <span className="text-sm text-gray-600 font-medium">{label}</span>
       <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gray-50" style={{ width: 150 }}>
-        <span className="text-gray-400 text-sm">S$</span>
+        <span className="text-gray-400 text-sm">{SYMBOLS[BASE_CUR] || BASE_CUR}</span>
         <input inputMode="decimal" value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d.]/g, ''))}
           placeholder="0.00" className="w-full bg-transparent outline-none tnum text-sm" />
       </div>
     </div>
   );
+}
+
+function BudgetEditor({ data, update }) {
+  const b = data.budgets || { week: 0, month: data.budget || 0, year: 0 };
+  const [week, setWeek] = useState(b.week || '');
+  const [month, setMonth] = useState(b.month || '');
+  const [year, setYear] = useState(b.year || '');
+  const [saved, setSaved] = useState(false);
+  const save = () => {
+    const budgets = { week: parseFloat(week) || 0, month: parseFloat(month) || 0, year: parseFloat(year) || 0 };
+    update({ budgets, budget: budgets.month });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1400);
+  };
   return (
     <div className="space-y-3">
       <div className="text-xs text-gray-400">All optional — leave any blank if you don't budget for it. Set ones show a progress bar in Insights for that period.</div>
-      <Field label="Weekly" val={week} setVal={setWeek} />
-      <Field label="Monthly" val={month} setVal={setMonth} />
-      <Field label="Yearly" val={year} setVal={setYear} />
+      <BudgetField label="Weekly" val={week} setVal={setWeek} />
+      <BudgetField label="Monthly" val={month} setVal={setMonth} />
+      <BudgetField label="Yearly" val={year} setVal={setYear} />
       <button onClick={save}
-        className="w-full px-4 py-2.5 rounded-xl text-white text-sm font-medium" style={{ background: ACCENT }}>Save budgets</button>
+        className="w-full px-4 py-2.5 rounded-xl text-white text-sm font-medium" style={{ background: ACCENT }}>
+        {saved ? 'Saved ✓' : 'Save budgets'}
+      </button>
     </div>
   );
 }
@@ -3664,32 +3727,53 @@ function DataTools({ data, setData }) {
 
 /* ----------------------------- BOTTOM NAV ----------------------------- */
 
+// A picker that opens as a bottom sheet pinned to the viewport, so the list can
+// never be clipped by a scrolling parent or run off the bottom of a phone screen.
+function Sheet({ open, onClose, title, children }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 flex items-end justify-center" style={{ zIndex: 60 }}
+      onMouseDown={(e) => e.preventDefault()}>
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.35)' }} onClick={onClose} />
+      <div className="relative w-full bg-white rounded-t-2xl"
+        style={{
+          maxWidth: 480, maxHeight: '70vh', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 -8px 30px rgba(0,0,0,0.18)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+          <span className="text-sm font-semibold text-gray-700">{title}</span>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center active:scale-90">
+            <X size={16} />
+          </button>
+        </div>
+        <div className="overflow-y-auto noscroll">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 function FontPicker({ value, onChange, options = NOTE_FONTS, full = false }) {
   const [open, setOpen] = useState(false);
   const cur = options.find((f) => f.key === value) || options[0];
   return (
     <div className="relative" style={full ? {} : { maxWidth: '48%' }}>
-      <button onClick={() => setOpen((o) => !o)}
+      <button onMouseDown={(e) => e.preventDefault()} onClick={() => setOpen((o) => !o)}
         className={"flex items-center justify-between gap-1 rounded-lg bg-gray-50 px-2.5 py-2 text-gray-600 active:scale-95" + (full ? " w-full" : "")}
         style={{ maxWidth: '100%' }}>
         <span className="truncate" style={{ fontFamily: cur.stack, fontSize: 15 }}>{cur.label}</span>
         <ChevronDown size={14} className="text-gray-400 shrink-0" />
       </button>
-      {open && (
-        <>
-          <div className="fixed inset-0" style={{ zIndex: 30 }} onClick={() => setOpen(false)} />
-          <div className={"absolute mt-1 rounded-xl bg-white border border-gray-100 overflow-y-auto noscroll " + (full ? "left-0 right-0" : "right-0")}
-            style={{ zIndex: 40, width: full ? undefined : 190, maxHeight: 280, boxShadow: '0 10px 28px rgba(0,0,0,0.16)' }}>
-            {options.map((f) => (
-              <button key={f.key} onClick={() => { onChange(f.key); setOpen(false); }}
-                className="w-full text-left px-3 py-2 active:bg-gray-50"
-                style={{ background: f.key === value ? ACCENT + '14' : 'transparent' }}>
-                <span style={{ fontFamily: f.stack, fontSize: 18, color: f.key === value ? ACCENT : '#374151' }}>{f.label}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      <Sheet open={open} onClose={() => setOpen(false)} title="Choose a font">
+        {options.map((f) => (
+          <button key={f.key} onMouseDown={(e) => e.preventDefault()}
+            onClick={() => { onChange(f.key); setOpen(false); }}
+            className="w-full text-left px-4 py-3 active:bg-gray-50 border-b border-gray-50"
+            style={{ background: f.key === value ? ACCENT + '14' : 'transparent' }}>
+            <span style={{ fontFamily: f.stack, fontSize: 18, color: f.key === value ? ACCENT : '#374151' }}>{f.label}</span>
+          </button>
+        ))}
+      </Sheet>
     </div>
   );
 }
@@ -3863,19 +3947,15 @@ function NotesTab({ noteTabs, onSaveTabs, goals, onSaveGoals, noteFont, noteSize
             className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center active:scale-90 text-gray-600">
             <Palette size={15} />
           </button>
-          {colorOpen && (
-            <>
-              <div className="fixed inset-0" style={{ zIndex: 30 }} onMouseDown={(e) => e.preventDefault()} onClick={() => setColorOpen(false)} />
-              <div className="absolute left-0 mt-1 p-3 rounded-xl bg-white border border-gray-100 grid grid-cols-5"
-                style={{ zIndex: 40, width: 226, gap: 12, boxShadow: '0 10px 28px rgba(0,0,0,0.16)' }}>
-                {INK_SWATCHES.map((c) => (
-                  <button key={c} onMouseDown={(e) => e.preventDefault()} onClick={() => applyColor(c)}
-                    className="rounded-full active:scale-90"
-                    style={{ width: 28, height: 28, justifySelf: 'center', background: c, border: '1px solid rgba(0,0,0,0.08)' }} />
-                ))}
-              </div>
-            </>
-          )}
+          <Sheet open={colorOpen} onClose={() => setColorOpen(false)} title="Text colour">
+            <div className="p-4 grid grid-cols-5" style={{ gap: 14 }}>
+              {INK_SWATCHES.map((c) => (
+                <button key={c} onMouseDown={(e) => e.preventDefault()} onClick={() => applyColor(c)}
+                  className="rounded-full active:scale-90"
+                  style={{ width: 36, height: 36, justifySelf: 'center', background: c, border: '1px solid rgba(0,0,0,0.08)' }} />
+              ))}
+            </div>
+          </Sheet>
         </div>
         <div className="flex-1" />
         {tabs.length > 1 && (
