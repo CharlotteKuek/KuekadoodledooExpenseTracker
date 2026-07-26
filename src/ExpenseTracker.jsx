@@ -105,7 +105,6 @@ const QUOTES = [{"q": "The purpose of wealth is freedom.", "who": "Naval Ravikan
 
 const DEFAULT_CATEGORIES = [
   { id: 'food', name: 'Food', color: '#F59E0B', subs: [] },
-  { id: 'restaurants', name: 'Restaurants', color: '#EA580C', subs: [] },
   { id: 'transport', name: 'Transport', color: '#3B82F6', subs: [
       { id: 'tp_ride', name: 'Ride-hailing' },
       { id: 'tp_public', name: 'Public transport' },
@@ -170,17 +169,15 @@ const KEYWORDS = [
   [['ntuc', 'fairprice', 'supermarket', 'cold storage', 'giant', 'sheng siong', 'sheng shiong', 'prime market', 'donki', 'don don donki', 'grocer', 'groceries', 'mustafa', 'redmart', 'hao mart', 'cs fresh', 'little farms', 'wet market', 'minimart', 'provision'], 'groceries', null],
   [['netflix', 'spotify', 'icloud', 'apple.com', 'itunes', 'app store', 'appstore', 'apple', 'google', 'youtube premium', 'youtube', 'subscription', 'disney', 'hbo', 'chatgpt', 'openai', 'anthropic', 'claude', 'notion', 'adobe', 'canva', 'patreon', 'dropbox', 'microsoft', 'linkedin premium', 'duolingo', 'telegram premium', 'vercel', 'supabase', 'github', 'namecheap', 'godaddy', 'cloudflare'], 'subscriptions', null],
 
-  // --- Restaurants: named chains, cuisines, and generic restaurant words ---
-  [['restaurant', 'restaurante', 'cafe', 'café', 'bistro', 'eatery', 'diner', 'brasserie', 'trattoria', 'osteria', 'grill', 'steakhouse', 'steak', 'bbq', 'barbecue', 'hotpot', 'hot pot', 'shabu', 'yakiniku', 'teppan', 'omakase', 'sushi', 'sashimi', 'ramen', 'udon', 'soba', 'izakaya', 'yakitori', 'donburi', 'katsu', 'tonkatsu', 'gyoza', 'bento', 'dim sum', 'dimsum', 'wok', 'noodle', 'noodles', 'la mian', 'lamian', 'mee', 'bak kut teh', 'zi char', 'ze char', 'seafood', 'crab', 'nasi', 'satay', 'rendang', 'briyani', 'biryani', 'thosai', 'dosa', 'curry', 'tandoor', 'kebab', 'shawarma', 'falafel', 'taco', 'burrito', 'tapas', 'paella', 'pho', 'banh mi', 'tom yum', 'pad thai', 'bibimbap', 'kimchi', 'korean bbq',
+  // --- Food: named chains, cuisines, hawker/casual, and generic food words ---
+  [['restaurant', 'restaurante', 'restoran', 'cafe', 'café', 'bistro', 'eatery', 'diner', 'brasserie', 'trattoria', 'osteria', 'grill', 'steakhouse', 'steak', 'bbq', 'barbecue', 'hotpot', 'hot pot', 'shabu', 'yakiniku', 'teppan', 'omakase', 'sushi', 'sashimi', 'ramen', 'udon', 'soba', 'izakaya', 'yakitori', 'donburi', 'katsu', 'tonkatsu', 'gyoza', 'bento', 'dim sum', 'dimsum', 'wok', 'noodle', 'noodles', 'la mian', 'lamian', 'mee', 'bak kut teh', 'zi char', 'ze char', 'seafood', 'crab', 'nasi', 'satay', 'rendang', 'briyani', 'biryani', 'thosai', 'dosa', 'curry', 'tandoor', 'kebab', 'shawarma', 'falafel', 'taco', 'burrito', 'tapas', 'paella', 'pho', 'banh mi', 'tom yum', 'pad thai', 'bibimbap', 'kimchi', 'korean bbq',
     'pizza', 'pizzeria', 'pasta', 'burger', 'burgers', 'sandwich', 'deli', 'salad', 'poke', 'wings', 'fried chicken',
     'mcdonald', 'mcdonalds', 'kfc', 'burger king', 'jollibee', 'texas chicken', 'popeyes', 'shake shack', 'five guys', 'wendy', 'subway sandwich', 'dominos', "domino's", 'pizza hut', 'papa john', 'canadian pizza',
     'starbucks', 'coffee bean', 'toast box', 'ya kun', 'tiong bahru bakery', 'paul', 'bakery', 'patisserie', 'boulangerie', 'cake', 'dessert', 'gelato', 'ice cream', 'creamery', 'yogurt', 'waffle', 'crepe', 'churros',
-    'din tai fung', 'crystal jade', 'paradise', 'putien', 'imperial treasure', 'jumbo', 'long beach', 'swensen', 'collin', 'aston', 'astons', 'pastamania', 'saizeriya', 'sushi tei', 'genki', 'itacho', 'ichiban', 'tempura', 'marche', 'fish & co', 'fish and co', 'manhattan fish', 'nandos', "nando's", 'pizza express', 'wingstop', 'mos burger', 'lotteria', 'yoshinoya', 'pepper lunch', 'ippudo', 'ajisen', 'tampopo', 'nam nam', 'soup restaurant', 'golden wok', 'dian xiao er', 'haidilao', 'beauty in the pot', 'seoul garden', 'ktv buffet',
+    'din tai fung', 'crystal jade', 'paradise', 'putien', 'imperial treasure', 'jumbo', 'long beach', 'swensen', 'collin', 'aston', 'astons', 'pastamania', 'saizeriya', 'sushi tei', 'genki', 'itacho', 'ichiban', 'tempura', 'marche', 'fish & co', 'fish and co', 'manhattan fish', 'nandos', "nando's", 'pizza express', 'wingstop', 'mos burger', 'lotteria', 'yoshinoya', 'pepper lunch', 'ippudo', 'ajisen', 'tampopo', 'nam nam', 'soup restaurant', 'golden wok', 'dian xiao er', 'haidilao', 'beauty in the pot', 'seoul garden', 'ktv buffet', 'malaysia boleh', 'penang', 'ban leong', 'ah yat', 'chilli padi', 'ponggol nasi lemak', 'killiney', 'wang cafe', 'ya ya',
     'bar', 'pub', 'tavern', 'brewery', 'brewhouse', 'lounge', 'cocktail', 'wine', 'beer', 'whisky', 'sake',
-    'dinner', 'brunch', 'buffet', 'high tea', 'supper', 'kitchen', 'house of', 'canteen deluxe'], 'restaurants', null],
-
-  // --- Food (casual / hawker / groceries-to-eat / generic) ---
-  [['hawker', 'kopitiam', 'food court', 'foodcourt', 'food centre', 'food center', 'coffee shop', 'coffeeshop', 'kopi', 'canteen', 'cai fan', 'economic rice', 'mixed rice', 'lunch', 'breakfast', 'food', 'eat', 'snack', 'bubble tea', 'boba', 'liho', 'koi', 'gong cha', 'chatime', 'toast', 'prata', 'roti', 'chwee kueh', 'you tiao', 'soya', 'tau huay', 'drink', 'juice', 'smoothie', 'milo', 'teh', 'kaya', 'porridge', 'congee', 'soup', 'dumpling', 'bao', 'popiah', 'rojak', 'laksa', 'wanton', 'fishball', 'yong tau foo', 'ban mian', 'lor mee', 'char kway teow', 'hokkien mee', '7-eleven', '7 eleven', 'seven eleven', 'cheers', 'convenience', 'lawson', 'familymart', 'family mart', 'circle k', 'vending'], 'food', null],
+    'dinner', 'brunch', 'buffet', 'high tea', 'supper', 'kitchen', 'house of', 'canteen deluxe',
+    'hawker', 'kopitiam', 'food court', 'foodcourt', 'food centre', 'food center', 'coffee shop', 'coffeeshop', 'kopi', 'canteen', 'cai fan', 'economic rice', 'mixed rice', 'lunch', 'breakfast', 'food', 'eat', 'snack', 'bubble tea', 'boba', 'liho', 'koi', 'gong cha', 'chatime', 'toast', 'prata', 'roti', 'chwee kueh', 'you tiao', 'soya', 'tau huay', 'drink', 'juice', 'smoothie', 'milo', 'teh', 'kaya', 'porridge', 'congee', 'soup', 'dumpling', 'bao', 'popiah', 'rojak', 'laksa', 'wanton', 'fishball', 'yong tau foo', 'ban mian', 'lor mee', 'char kway teow', 'hokkien mee', '7-eleven', '7 eleven', 'seven eleven', 'cheers', 'convenience', 'lawson', 'familymart', 'family mart', 'circle k', 'vending'], 'food', null],
 
   [['movie', 'cinema', 'cineplex', 'golden village', 'shaw', 'cathay cineplex', 'gv ', 'concert', 'ticket', 'arcade', 'karaoke', 'ktv', 'gig', 'steam', 'playstation', 'nintendo', 'xbox', 'bowling', 'billiard', 'pool hall', 'escape room', 'zoo', 'aquarium', 'museum', 'gallery', 'theme park', 'universal studios', 'sentosa', 'club', 'nightclub', 'board game'], 'entertainment', null],
 
@@ -429,8 +426,11 @@ function merchantKey(desc) {
 }
 
 // Suggest a category for a description.
-// First: what you've taught it. Then: keyword rules. Else: nothing.
-function suggestCategory(desc, learned) {
+// First: what you've taught it. Then: keyword rules. Then: does the description
+// mention one of your own category (or sub-category) names — this is what lets a
+// freshly-added category like "Furniture" get auto-picked with no code changes.
+// Else: nothing.
+function suggestCategory(desc, learned, categories) {
   if (!desc) return null;
   const key = merchantKey(desc);
   if (learned && key && learned[key]) {
@@ -440,6 +440,17 @@ function suggestCategory(desc, learned) {
   const d = ' ' + desc.toLowerCase() + ' ';
   for (const [words, cat, sub] of KEYWORDS) {
     if (words.some((w) => d.includes(w))) return { catId: cat, subId: sub };
+  }
+  if (categories && categories.length) {
+    for (const c of categories) {
+      if (c.id === 'general') continue;
+      for (const sub of c.subs || []) {
+        const name = (sub.name || '').toLowerCase();
+        if (name.length >= 4 && d.includes(name)) return { catId: c.id, subId: sub.id };
+      }
+      const name = (c.name || '').toLowerCase();
+      if (name.length >= 4 && d.includes(name)) return { catId: c.id, subId: null };
+    }
   }
   return null;
 }
@@ -453,7 +464,7 @@ const TRASH_MS = TRASH_HOURS * 60 * 60 * 1000;
 const purgeTrash = (list) =>
   (list || []).filter((t) => Date.now() - (t.deletedAt || 0) < TRASH_MS);
 
-const DATA_VERSION = 16;
+const DATA_VERSION = 17;
 
 // One-time, in-place upgrades for data saved by older versions.
 function migrate(d) {
@@ -555,6 +566,24 @@ function migrate(d) {
     // "Recently deleted" bin: deleted expenses are recoverable for a while.
     if (!Array.isArray(d.trash)) d.trash = [];
     v = 16;
+  }
+  if (v < 17) {
+    // "Restaurants" removed as a category — everything folds into "Food" instead.
+    if (Array.isArray(d.categories)) {
+      d.categories = d.categories.filter((c) => c.id !== 'restaurants' && (c.name || '').toLowerCase() !== 'restaurants');
+    }
+    if (Array.isArray(d.expenses)) {
+      d.expenses = d.expenses.map((e) => (e.catId === 'restaurants' ? { ...e, catId: 'food', subId: null } : e));
+    }
+    if (Array.isArray(d.recurring)) {
+      d.recurring = d.recurring.map((r) => (r.catId === 'restaurants' ? { ...r, catId: 'food', subId: null } : r));
+    }
+    if (d.learned && typeof d.learned === 'object') {
+      d.learned = Object.fromEntries(
+        Object.entries(d.learned).map(([k, l]) => [k, l && l.catId === 'restaurants' ? { ...l, catId: 'food', subId: null } : l])
+      );
+    }
+    v = 17;
   }
   // clear out anything past its window every time the app loads
   d.trash = purgeTrash(d.trash);
@@ -758,7 +787,7 @@ export default function ExpenseTracker({ onSignOut }) {
   const flagUndo = (payload) => {
     setUndo(payload);
     clearTimeout(undoTimer.current);
-    undoTimer.current = setTimeout(() => setUndo(null), 6000);
+    undoTimer.current = setTimeout(() => setUndo(null), 60000);
   };
 
   const addExpense = (e) => {
@@ -1226,7 +1255,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   // live suggestion
   useEffect(() => {
     if (!desc) return;
-    const s = suggestCategory(desc, data.learned);
+    const s = suggestCategory(desc, data.learned, cats);
     if (s && !catId) { setCatId(s.catId); setSubId(s.subId); }
   }, [desc]); // eslint-disable-line
 
@@ -3547,7 +3576,7 @@ function TechStackEgg() {
             we set up, <strong>only your own login can ever see your rows</strong> — not other users, not me, not randoms.
           </p>
           <p className="mb-2">
-            The category-guessing (turning “mcdonalds 10” into Restaurants) is simple word-matching <em>on your phone</em> —
+            The category-guessing (turning “mcdonalds 10” into Food) is simple word-matching <em>on your phone</em> —
             <strong> no AI, no tracking, no ads</strong>, and nothing gets sent anywhere except your own private data.
           </p>
           <p className="text-gray-400" style={{ fontSize: 12 }}>Tip: add it to your Home Screen (Share → Add to Home Screen) and it feels like a real app 💛</p>
