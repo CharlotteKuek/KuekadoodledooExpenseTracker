@@ -787,7 +787,7 @@ export default function ExpenseTracker({ onSignOut }) {
   const flagUndo = (payload) => {
     setUndo(payload);
     clearTimeout(undoTimer.current);
-    undoTimer.current = setTimeout(() => setUndo(null), 60000);
+    undoTimer.current = setTimeout(() => setUndo(null), 6000);
   };
 
   const addExpense = (e) => {
