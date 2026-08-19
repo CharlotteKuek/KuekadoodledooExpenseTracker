@@ -6,7 +6,7 @@ import {
   Plus, X, Check, Search, Trash2, Pencil, Settings as SettingsIcon, Plane,
   Wallet, TrendingUp, TrendingDown, ChevronRight, ChevronDown, ChevronLeft,
   Download, Upload, RotateCcw, MapPin, Home, Clock, BarChart3, CreditCard,
-  Layers, ArrowLeft, StickyNote, Calendar, Dog, Palette, Sparkles,
+  Layers, ArrowLeft, StickyNote, Calendar, Dog, Palette, Sparkles, Minus,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { supabase } from './supabaseClient';
@@ -800,6 +800,9 @@ export default function ExpenseTracker({ onSignOut }) {
     if (undo.kind === 'add') {
       const id = undo.items[0].e.id;
       setData((d) => ({ ...d, expenses: d.expenses.filter((x) => x.id !== id) }));
+    } else if (undo.kind === 'edit') {
+      const prevE = undo.items[0].e;
+      setData((d) => ({ ...d, expenses: d.expenses.map((x) => (x.id === prevE.id ? prevE : x)) }));
     } else {
       // put the deleted rows back exactly where they were, and take them out of the bin
       const ids = new Set(undo.items.map((it) => it.e.id));
@@ -829,6 +832,22 @@ export default function ExpenseTracker({ onSignOut }) {
       learned[key] = { catId: e.catId, subId: e.subId || null };
     }
     update({ expenses: data.expenses.map((x) => (x.id === e.id ? e : x)), learned });
+  };
+  // Deduct money paid back to you from an already-logged expense (e.g. everyone
+  // chipping in for a meal you covered). Keeps a running "reimbursed" total for
+  // display; the undo toast reverts the whole expense back to its prior amount.
+  const reimburseExpense = (id, amt) => {
+    const prev = data.expenses.find((x) => x.id === id);
+    if (!prev || !(amt > 0)) return;
+    const newOriginal = Math.max(0, (parseFloat(prev.original) || 0) - amt);
+    const next = {
+      ...prev,
+      original: newOriginal,
+      sgd: toBase(newOriginal, prev.currency, data.rates),
+      reimbursed: (prev.reimbursed || 0) + amt,
+    };
+    update({ expenses: data.expenses.map((x) => (x.id === id ? next : x)) });
+    flagUndo({ kind: 'edit', label: `${fmtNum(amt, prev.currency)} deducted`, items: [{ e: prev }] });
   };
   const removeExpense = (id) => {
     const idx = data.expenses.findIndex((x) => x.id === id);
@@ -985,6 +1004,7 @@ export default function ExpenseTracker({ onSignOut }) {
             onClose={() => setEditing(null)}
             onSave={(e) => { editExpense(e); setEditing(null); }}
             onDelete={(id) => { removeExpense(id); setEditing(null); }}
+            onReimburse={reimburseExpense}
           />
         )}
       </div>
@@ -1236,6 +1256,8 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   const [useCustomDate, setUseCustomDate] = useState(false);
   const [useSpread, setUseSpread] = useState(false);
   const [useRepeat, setUseRepeat] = useState(false);
+  const [useReimburse, setUseReimburse] = useState(false);
+  const [reimburseAmt, setReimburseAmt] = useState('');
   const [repeatFreq, setRepeatFreq] = useState('monthly');
   const [repeatEnd, setRepeatEnd] = useState('');
   const [spreadStart, setSpreadStart] = useState(todayISO());
@@ -1265,6 +1287,11 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
     return [...cats].sort((a, b) => (b.travel ? 1 : 0) - (a.travel ? 1 : 0));
   }, [cats, activeTrip]);
 
+  // "Reimburse" nets off money you already know is coming back (e.g. you fronted
+  // a group meal) so the logged expense reflects what actually left your pocket.
+  const reimburseNum = (special && useReimburse) ? (parseFloat(reimburseAmt) || 0) : 0;
+  const netAmount = effAmount > 0 ? Math.max(0, effAmount - reimburseNum) : effAmount;
+
   const canAdd = effAmount > 0 && catId;
 
   // spread range -> number of days (end clamped to >= start)
@@ -1282,6 +1309,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
     setDate(todayISO()); setCurrency(baseCur);
     setSpecial(false); setUseCustomDate(false); setUseSpread(false);
     setUseRepeat(false); setRepeatFreq('monthly'); setRepeatEnd('');
+    setUseReimburse(false); setReimburseAmt('');
     setSpreadStart(todayISO()); setSpreadEnd(todayISO());
     inputRef.current?.focus();
   };
@@ -1292,7 +1320,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
       onAddRecurring({
         id: uid(),
         desc: desc || catById[cid].name,
-        original: effAmount, currency,
+        original: netAmount, currency,
         catId: cid, subId: sid,
         freq: repeatFreq, startDate: date, lastPosted: null,
         endDate: repeatEnd || null,
@@ -1303,14 +1331,15 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
       onAdd({
         id: uid(),
         desc: desc || catById[cid].name,
-        original: effAmount,
+        original: netAmount,
         currency,
-        sgd: toBase(effAmount, currency, rates),
+        sgd: toBase(netAmount, currency, rates),
         catId: cid, subId: sid,
         date,
         spreadDays: spreadDayCount,
         spreadStart: (special && useSpread) ? spreadStart : null,
         tripId: activeTrip ? activeTrip.id : null,
+        reimbursed: reimburseNum > 0 ? reimburseNum : undefined,
         ts: Date.now(),
       });
     }
@@ -1391,29 +1420,53 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
           <div className="mt-3 rounded-xl p-3 space-y-3" style={{ background: accent + '12' }}>
             <div className="text-xs text-gray-500">For anything that isn't a normal "right now" entry. Tap what you need:</div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button onClick={() => setUseCustomDate((v) => !v)}
-                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
+                className="flex-1 min-w-[47%] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
                 style={useCustomDate
                   ? { background: accent, borderColor: accent, color: '#fff' }
                   : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
                 <Calendar size={14} /> Date
               </button>
               <button onClick={() => { setUseSpread((v) => !v); if (!useSpread) setUseRepeat(false); }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
+                className="flex-1 min-w-[47%] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
                 style={useSpread
                   ? { background: accent, borderColor: accent, color: '#fff' }
                   : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
                 <Layers size={14} /> Spread
               </button>
               <button onClick={() => { setUseRepeat((v) => !v); if (!useRepeat) setUseSpread(false); }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
+                className="flex-1 min-w-[47%] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
                 style={useRepeat
                   ? { background: accent, borderColor: accent, color: '#fff' }
                   : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
                 <RotateCcw size={14} /> Repeat
               </button>
+              <button onClick={() => setUseReimburse((v) => !v)}
+                className="flex-1 min-w-[47%] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
+                style={useReimburse
+                  ? { background: accent, borderColor: accent, color: '#fff' }
+                  : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
+                <Minus size={14} /> Getting paid back
+              </button>
             </div>
+
+            {useReimburse && (
+              <div className="pt-1">
+                <div className="text-sm text-gray-600 font-medium mb-1.5">How much is coming back to you?</div>
+                <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200">
+                  <span className="text-gray-400 text-sm">{SYMBOLS[currency] || currency}</span>
+                  <input inputMode="decimal" value={reimburseAmt}
+                    onChange={(ev) => setReimburseAmt(ev.target.value.replace(/[^\d.]/g, ''))}
+                    placeholder="0.00" className="w-full bg-transparent outline-none text-sm tnum" />
+                </div>
+                {effAmount > 0 && reimburseNum > 0 && (
+                  <div className="text-xs text-gray-500 mt-1.5 tnum">
+                    Logs {fmtSGD(toBase(netAmount, currency, rates))} net (≈ {fmtSGD(toBase(effAmount, currency, rates))} paid − {fmtSGD(toBase(reimburseNum, currency, rates))} back)
+                  </div>
+                )}
+              </div>
+            )}
 
             {useCustomDate && (
               <div className="flex items-center justify-between gap-2 pt-1">
@@ -1525,7 +1578,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
           </button>
         </div>
         {effAmount > 0 && (
-          <div className="text-xs text-gray-400 mt-2 px-1">Tap a category to log {fmtSGD(toBase(effAmount, currency, rates))} now.</div>
+          <div className="text-xs text-gray-400 mt-2 px-1">Tap a category to log {fmtSGD(toBase(netAmount, currency, rates))} now.</div>
         )}
       </div>
 
@@ -1632,6 +1685,7 @@ function ExpenseRow({ e, cat, onClick, amount, note, lead, selected }) {
   const sub = cat?.subs.find((s) => s.id === e.subId);
   const shown = amount != null ? amount : e.sgd;
   const split = (e.spreadDays || 1) > 1;
+  const reimbursed = (e.reimbursed || 0) > 0;
   return (
     <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-gray-50"
       style={selected ? { background: ACCENT + '12' } : undefined}>
@@ -1641,6 +1695,7 @@ function ExpenseRow({ e, cat, onClick, amount, note, lead, selected }) {
         <div className="text-sm font-medium truncate">
           {e.desc}
           {split && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded" style={{ color: ACCENT, background: ACCENT + '14' }}>split · {e.spreadDays}d</span>}
+          {reimbursed && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded" style={{ color: '#059669', background: '#05966914' }}>{fmtNum(e.reimbursed, e.currency)} back</span>}
         </div>
         <div className="text-xs text-gray-400 truncate">
           {cat?.name || 'Uncategorized'}{sub ? ' · ' + sub.name : ''} · {prettyDate(e.date)}{note ? ' · ' + note : ''}
@@ -3288,13 +3343,23 @@ function Segmented({ value, onChange, options }) {
 
 /* ----------------------------- EDIT SHEET ----------------------------- */
 
-function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete }) {
+function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete, onReimburse }) {
   const [e, setE] = useState({ ...expense });
+  const [payback, setPayback] = useState('');
   const cat = cats.find((c) => c.id === e.catId);
   const set = (p) => setE((x) => ({ ...x, ...p }));
 
   const save = () => {
     onSave({ ...e, original: parseFloat(e.original) || 0, sgd: toBase(parseFloat(e.original) || 0, e.currency, rates) });
+  };
+
+  const deductPayback = () => {
+    const amt = parseFloat(payback);
+    if (!(amt > 0)) return;
+    onReimburse(e.id, amt);
+    const newOriginal = Math.max(0, (parseFloat(e.original) || 0) - amt);
+    set({ original: newOriginal, sgd: toBase(newOriginal, e.currency, rates), reimbursed: (e.reimbursed || 0) + amt });
+    setPayback('');
   };
 
   return (
@@ -3319,6 +3384,30 @@ function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete }) {
             className="px-3 py-2 rounded-xl bg-gray-50 text-sm font-medium outline-none">
             {Object.keys(rates).map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
+        </div>
+
+        <div className="rounded-xl bg-gray-50 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-500">Paid back to you</span>
+            {e.reimbursed > 0 && (
+              <span className="text-xs text-gray-400 tnum">{fmtNum(e.reimbursed, e.currency)} deducted so far</span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 flex-1">
+              <span className="text-gray-400 text-sm">{SYMBOLS[e.currency] || e.currency}</span>
+              <input inputMode="decimal" value={payback}
+                onChange={(ev) => setPayback(ev.target.value.replace(/[^\d.]/g, ''))}
+                placeholder="0.00" className="w-full bg-transparent outline-none tnum" />
+            </div>
+            <button onClick={deductPayback} disabled={!(parseFloat(payback) > 0)}
+              className="px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+              style={parseFloat(payback) > 0
+                ? { background: ACCENT, color: '#fff' }
+                : { background: '#E5E7EB', color: '#9CA3AF' }}>
+              <Minus size={14} /> Deduct
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
