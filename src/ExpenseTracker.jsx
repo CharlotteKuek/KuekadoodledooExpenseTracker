@@ -6,7 +6,7 @@ import {
   Plus, X, Check, Search, Trash2, Pencil, Settings as SettingsIcon, Plane,
   Wallet, TrendingUp, TrendingDown, ChevronRight, ChevronDown, ChevronLeft,
   Download, Upload, RotateCcw, MapPin, Home, Clock, BarChart3, CreditCard,
-  Layers, ArrowLeft, StickyNote, Calendar, Dog, Palette, Sparkles, Minus,
+  Layers, ArrowLeft, StickyNote, Calendar, Dog, Palette, Sparkles, Minus, Users,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { supabase } from './supabaseClient';
@@ -1258,6 +1258,9 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   const [useRepeat, setUseRepeat] = useState(false);
   const [useReimburse, setUseReimburse] = useState(false);
   const [reimburseAmt, setReimburseAmt] = useState('');
+  const [useSplit, setUseSplit] = useState(false);
+  const [splitN, setSplitN] = useState(null); // 2 | 3 | custom | null
+  const [paxText, setPaxText] = useState('');
   const [repeatFreq, setRepeatFreq] = useState('monthly');
   const [repeatEnd, setRepeatEnd] = useState('');
   const [spreadStart, setSpreadStart] = useState(todayISO());
@@ -1290,7 +1293,10 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
   // "Reimburse" nets off money you already know is coming back (e.g. you fronted
   // a group meal) so the logged expense reflects what actually left your pocket.
   const reimburseNum = (special && useReimburse) ? (parseFloat(reimburseAmt) || 0) : 0;
-  const netAmount = effAmount > 0 ? Math.max(0, effAmount - reimburseNum) : effAmount;
+  // "Split the bill" divides the typed total by the number of people first.
+  const splitCount = (special && useSplit && splitN > 1) ? splitN : 1;
+  const shareAmount = effAmount > 0 ? Math.round((effAmount / splitCount) * 100) / 100 : effAmount;
+  const netAmount = effAmount > 0 ? Math.max(0, shareAmount - reimburseNum) : effAmount;
 
   const canAdd = effAmount > 0 && catId;
 
@@ -1310,6 +1316,7 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
     setSpecial(false); setUseCustomDate(false); setUseSpread(false);
     setUseRepeat(false); setRepeatFreq('monthly'); setRepeatEnd('');
     setUseReimburse(false); setReimburseAmt('');
+    setUseSplit(false); setSplitN(null); setPaxText('');
     setSpreadStart(todayISO()); setSpreadEnd(todayISO());
     inputRef.current?.focus();
   };
@@ -1449,7 +1456,47 @@ function HomeTab({ data, cats, rates, activeTrip, catById, onAdd, onAddRecurring
                   : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
                 <Minus size={14} /> Getting paid back
               </button>
+              <button onClick={() => setUseSplit((v) => !v)}
+                className="flex-1 min-w-[47%] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-sm font-medium border transition active:scale-[0.98]"
+                style={useSplit
+                  ? { background: accent, borderColor: accent, color: '#fff' }
+                  : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
+                <Users size={14} /> Split the bill
+              </button>
             </div>
+
+            {useSplit && (
+              <div className="pt-1">
+                <div className="text-sm text-gray-600 font-medium mb-1.5">Split between how many?</div>
+                <div className="flex gap-2">
+                  {[2, 3].map((n) => (
+                    <button key={n} onClick={() => { setSplitN(splitN === n ? null : n); setPaxText(''); }}
+                      className="px-4 py-2 rounded-xl text-sm font-semibold border"
+                      style={splitN === n && !paxText
+                        ? { background: accent, borderColor: accent, color: '#fff' }
+                        : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
+                      ÷ {n}
+                    </button>
+                  ))}
+                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border flex-1"
+                    style={{ borderColor: paxText ? accent : '#E5E7EB' }}>
+                    <span className="text-gray-400 text-sm">÷</span>
+                    <input inputMode="numeric" value={paxText} placeholder="pax"
+                      onChange={(ev) => {
+                        const v = ev.target.value.replace(/\D/g, '').slice(0, 3);
+                        setPaxText(v);
+                        setSplitN(parseInt(v, 10) || null);
+                      }}
+                      className="w-full bg-transparent outline-none text-sm tnum" />
+                  </div>
+                </div>
+                {effAmount > 0 && splitCount > 1 && (
+                  <div className="text-xs text-gray-500 mt-1.5 tnum">
+                    Logs {fmtSGD(toBase(shareAmount, currency, rates))} — your share of {fmtSGD(toBase(effAmount, currency, rates))} ÷ {splitCount}
+                  </div>
+                )}
+              </div>
+            )}
 
             {useReimburse && (
               <div className="pt-1">
