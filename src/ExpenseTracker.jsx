@@ -3346,8 +3346,21 @@ function Segmented({ value, onChange, options }) {
 function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete, onReimburse }) {
   const [e, setE] = useState({ ...expense });
   const [payback, setPayback] = useState('');
+  // Split: always divides the amount as it was when opened (or after the last
+  // deduction), so switching ÷2 → ÷3 doesn't compound.
+  const [splitBase, setSplitBase] = useState(parseFloat(expense.original) || 0);
+  const [splitN, setSplitN] = useState(null); // 2 | 3 | custom number | null
+  const [paxText, setPaxText] = useState('');
   const cat = cats.find((c) => c.id === e.catId);
   const set = (p) => setE((x) => ({ ...x, ...p }));
+
+  const applySplit = (n, fromPax = false) => {
+    if (!n || n < 1) { setSplitN(null); set({ original: splitBase }); return; }
+    if (!fromPax) setPaxText('');
+    setSplitN(n);
+    set({ original: Math.round((splitBase / n) * 100) / 100 });
+  };
+  const resetSplit = () => { setSplitN(null); setPaxText(''); set({ original: splitBase }); };
 
   const save = () => {
     onSave({ ...e, original: parseFloat(e.original) || 0, sgd: toBase(parseFloat(e.original) || 0, e.currency, rates) });
@@ -3359,6 +3372,7 @@ function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete, onR
     onReimburse(e.id, amt);
     const newOriginal = Math.max(0, (parseFloat(e.original) || 0) - amt);
     set({ original: newOriginal, sgd: toBase(newOriginal, e.currency, rates), reimbursed: (e.reimbursed || 0) + amt });
+    setSplitBase(newOriginal); setSplitN(null); setPaxText('');
     setPayback('');
   };
 
@@ -3384,6 +3398,44 @@ function EditSheet({ expense, cats, rates, trips, onClose, onSave, onDelete, onR
             className="px-3 py-2 rounded-xl bg-gray-50 text-sm font-medium outline-none">
             {Object.keys(rates).map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
+        </div>
+
+        <div className="rounded-xl bg-gray-50 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-500">Split the bill</span>
+            {splitN && (
+              <button onClick={resetSplit} className="text-xs text-gray-400 flex items-center gap-1">
+                <RotateCcw size={11} /> Reset
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {[2, 3].map((n) => (
+              <button key={n} onClick={() => (splitN === n ? resetSplit() : applySplit(n))}
+                className="px-4 py-2 rounded-xl text-sm font-semibold border"
+                style={splitN === n && !paxText
+                  ? { background: ACCENT, borderColor: ACCENT, color: '#fff' }
+                  : { background: '#fff', borderColor: '#E5E7EB', color: '#6B7280' }}>
+                ÷ {n}
+              </button>
+            ))}
+            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border flex-1"
+              style={{ borderColor: paxText ? ACCENT : '#E5E7EB' }}>
+              <span className="text-gray-400 text-sm">÷</span>
+              <input inputMode="numeric" value={paxText} placeholder="pax"
+                onChange={(ev) => {
+                  const v = ev.target.value.replace(/\D/g, '').slice(0, 3);
+                  setPaxText(v);
+                  applySplit(parseInt(v, 10) || null, true);
+                }}
+                className="w-full bg-transparent outline-none tnum" />
+            </div>
+          </div>
+          {splitN > 0 && (
+            <p className="text-xs text-gray-400 tnum">
+              {fmtNum(splitBase, e.currency)} ÷ {splitN} = {fmtNum(parseFloat(e.original) || 0, e.currency)} each · tap Save to keep
+            </p>
+          )}
         </div>
 
         <div className="rounded-xl bg-gray-50 p-3 space-y-2">
